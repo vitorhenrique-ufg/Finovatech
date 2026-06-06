@@ -58,7 +58,7 @@ Loja de hardware com visual "dark tech" construída em Blazor Server que usa o F
 
 ## 🏗️ Arquitetura
 
-![Proposta](./proposta_arquitetura.png)
+![Proposta](./arquitetura.png)
 
 ### Eventos de Domínio
 
