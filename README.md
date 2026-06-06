@@ -2,7 +2,7 @@
 
 # 🏦 FinovaTech + 🛒 NovaMart
 
-**Plataforma de microsserviços para processamento de pagamentos internacionais com detecção de fraude por IA e e-commerce em tempo real**
+**Plataforma de microsserviços para processamento de pagamentos com detecção de fraude por IA e e-commerce em tempo real**
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?style=flat-square&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
 [![Blazor](https://img.shields.io/badge/Blazor-Server-512BD4?style=flat-square&logo=blazor&logoColor=white)](https://blazor.net)
@@ -24,11 +24,9 @@
 
 ## 📋 Sobre o Projeto
 
-Este repositório contém dois tech challenges integrados que demonstram arquitetura enterprise em .NET 10:
-
 ### 🏦 FinovaTech — Backend de Pagamentos
 
-Plataforma de microsserviços resiliente para **processamento de pagamentos internacionais** com conversão de moedas. Implementa Outbox Pattern, Saga com MassTransit, detecção de fraude por IA plugável, idempotência via Redis e observabilidade completa com OpenTelemetry.
+Plataforma de microsserviços resiliente para **processamento de pagamentos** com conversão de moedas. Implementa Outbox Pattern, Saga com MassTransit, detecção de fraude por IA plugável, idempotência via Redis e observabilidade completa com OpenTelemetry.
 
 Todos os microsserviços se comunicam **exclusivamente via eventos RabbitMQ** — zero chamadas HTTP diretas entre serviços de pagamento.
 
@@ -54,61 +52,13 @@ Loja de hardware com visual "dark tech" construída em Blazor Server que usa o F
 | ✅ | **YARP API Gateway** | Roteamento inteligente, autenticação JWT centralizada, Rate Limiting por IP e timeout global. |
 | ✅ | **Idempotência com Redis** | ChaveIdempotencia com TTL de 24h garante que o mesmo pagamento nunca seja processado duas vezes. |
 | ✅ | **Resiliência com Polly v8** | Retry com backoff exponencial, Circuit Breaker, Timeout e Bulkhead em todos os serviços. |
-| ✅ | **Stack completa em um comando** | `docker compose up -d` sobe toda a infraestrutura em segundos. |
+| ✅ | **Stack completa** | `docker compose up -d` sobe toda a infraestrutura em segundos. |
 
 ---
 
 ## 🏗️ Arquitetura
 
-```mermaid
-graph TD
-    Browser["🌐 Browser / NovaMart\n(Blazor Server :5000)"]
-
-    subgraph Gateway["API Gateway"]
-        GW["🔵 GatewayApi\nYARP · JWT · Rate Limiting\n:8000"]
-    end
-
-    subgraph Pagamentos["Microsserviços de Pagamento"]
-        GP["GatewayPagamento\nOutbox Pattern · Idempotência\n:8001"]
-        PP["ProcessadorPagamento\nSaga · MassTransit\n:8002"]
-        DF["DeteccaoFraude\nRegras + IA Plugável\n:8003"]
-        SN["ServicoNotificacao\nSignalR Hub · Web Push\n:8004"]
-    end
-
-    subgraph Catalogo["Catálogo"]
-        SC["ServicoCatalogo\nProdutos em Memória\n:8005"]
-    end
-
-    subgraph Infra["Infraestrutura"]
-        MQ["🐇 RabbitMQ 3.13\nMessage Broker + DLQ"]
-        DB["🐘 PostgreSQL 16\nPagamentos · Outbox"]
-        RD["⚡ Redis 7\nIdempotência · SignalR Backplane"]
-        OT["📊 Jaeger · Prometheus · Grafana"]
-    end
-
-    subgraph AI["IA (opcional)"]
-        CL["Claude / OpenRouter\nOpenAI / Ollama"]
-    end
-
-    Browser -->|"HTTP / WebSocket"| GW
-    GW -->|"/payments"| GP
-    GW -->|"/catalog"| SC
-    GW -->|"/hubs/payments"| SN
-    GP -->|"Outbox → RabbitMQ"| MQ
-    MQ -->|"PagamentoIniciado"| PP
-    PP -->|"PagamentoEnviadoParaAnalise"| MQ
-    MQ -->|"consume"| DF
-    DF -->|"AnaliseFraudeConcluida"| MQ
-    DF -. "análise de risco" .-> CL
-    MQ -->|"PagamentoAprovado / Rejeitado"| PP
-    PP -->|"evento final"| MQ
-    MQ -->|"consume"| SN
-    SN -->|"SignalR Broadcast"| Browser
-    SN -->|"Web Push VAPID"| Browser
-    GP --- DB
-    GP --- RD
-    SN --- RD
-```
+![Proposta](./proposta_arquitetura.png)
 
 ### Eventos de Domínio
 
@@ -237,14 +187,7 @@ docker compose up -d
 ### 4 — Parar os containers
 
 ```bash
-.\stop.ps1          # PowerShell (Windows)
 docker compose down # qualquer plataforma
-```
-
-### 5 — Restart limpo (apaga volumes)
-
-```bash
-.\restart.ps1       # PowerShell (Windows)
 ```
 
 ---
@@ -277,26 +220,6 @@ PROVEDOR_IA=Ollama
 MODELO_IA=llama3.2
 BASEURL_IA=http://host.docker.internal:11434/v1
 ```
-
-### Web Push Notifications (VAPID)
-
-As chaves VAPID de desenvolvimento já estão pré-configuradas no `docker-compose.yml`. Para produção, gere um novo par de chaves:
-
-```bash
-# Node.js — gera par de chaves VAPID EC P-256
-node -e "
-const crypto = require('crypto');
-const { publicKey, privateKey } = crypto.generateKeyPairSync('ec', {
-  namedCurve: 'prime256v1',
-  publicKeyEncoding:  { type: 'spki',  format: 'der' },
-  privateKeyEncoding: { type: 'pkcs8', format: 'der' }
-});
-console.log('VAPID_PUBLIC_KEY=',  publicKey.slice(23).toString('base64url'));
-console.log('VAPID_PRIVATE_KEY=', privateKey.slice(36).toString('base64url'));
-"
-```
-
-Adicione as chaves geradas às variáveis de ambiente do `ServicoNotificacao`:
 
 ```yaml
 # docker-compose.yml (trecho)
@@ -476,15 +399,6 @@ Cada microsserviço conhece apenas os contratos de evento definidos em `Finovate
 ### Por que Outbox Pattern?
 Publicar diretamente no RabbitMQ dentro da request HTTP perde eventos se o broker estiver indisponível no momento do `Commit`. Com o Outbox, o evento é persistido na mesma transação do banco de dados. O `RelayOutbox` (`IHostedService`) entrega o evento com garantia — mesmo após restart do container.
 
-### Por que MassTransit 8.2.5?
-A versão 8.3.6+ requer licença comercial para uso em produção. A 8.2.5 é a última versão sob MIT License — escolha deliberada para manter o projeto open source.
-
-### Por que Cookie HttpOnly para o JWT?
-JavaScript não consegue ler cookies `HttpOnly` — proteção nativa contra ataques XSS. Usar `localStorage` exporia o token a qualquer script injetado na página. O `ServicoAutenticacao` renova o token silenciosamente 5 minutos antes do vencimento.
-
-### Por que IA plugável?
-Detecção de fraude por LLM tem custo e latência. A interface `IClienteIA` permite usar um modelo caro (Claude Opus) para pagamentos de alto valor e um modelo local gratuito (Ollama + Llama) para os demais — tudo configurado por variável de ambiente, sem alterar uma linha de código.
-
 ### Por que Dead Letter Queues?
 Mensagens que falham repetidamente (ex: bug no consumer, schema inválido) não podem travar a fila principal. Cada fila tem uma DLQ associada para inspeção e reprocessamento manual sem impacto no fluxo principal.
 
@@ -493,17 +407,11 @@ Workers recebem trabalho via fila, não via HTTP — mas ainda precisam de obser
 
 ---
 
-## 📄 Licença
-
-Distribuído sob a licença MIT. Veja [LICENSE](LICENSE) para mais detalhes.
-
----
-
 <div align="center">
 
 Feito com ☕ e muito `dotnet build` por **Vitor Henrique**
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Conectar-0077B5?style=flat-square&logo=linkedin&logoColor=white)](https://linkedin.com/in/vitor-henrique-em)
-[![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/Vitor-Henrique-EM)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Conectar-0077B5?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/vitor-henrique-ferreira-de-brito-a25559204/)
+[![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/vitorhenrique-ufg)
 
 </div>
