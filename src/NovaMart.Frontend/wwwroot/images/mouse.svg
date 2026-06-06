@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" fill="none">
+  <rect width="600" height="400" fill="#0f172a"/>
+  <!-- Mouse body -->
+  <ellipse cx="300" cy="220" rx="130" ry="160" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+  <ellipse cx="300" cy="130" rx="130" ry="80" fill="#111827" stroke="#334155" stroke-width="2"/>
+  <!-- Left/Right button divider -->
+  <line x1="300" y1="75" x2="300" y2="185" stroke="#475569" stroke-width="2"/>
+  <!-- Left button -->
+  <path d="M175 130 Q175 75 300 75 L300 185 Q240 185 175 160 Z" fill="#1a2537" stroke="#334155" stroke-width="1"/>
+  <!-- Right button -->
+  <path d="M425 130 Q425 75 300 75 L300 185 Q360 185 425 160 Z" fill="#111827" stroke="#334155" stroke-width="1"/>
+  <!-- Scroll wheel -->
+  <rect x="283" y="95" width="34" height="60" rx="17" fill="#22d3ee" opacity="0.8"/>
+  <rect x="287" y="110" width="26" height="3" rx="1.5" fill="#0f172a"/>
+  <rect x="287" y="118" width="26" height="3" rx="1.5" fill="#0f172a"/>
+  <rect x="287" y="126" width="26" height="3" rx="1.5" fill="#0f172a"/>
+  <rect x="287" y="134" width="26" height="3" rx="1.5" fill="#0f172a"/>
+  <!-- Side buttons -->
+  <rect x="168" y="190" width="14" height="30" rx="4" fill="#22d3ee" opacity="0.7"/>
+  <rect x="168" y="226" width="14" height="24" rx="4" fill="#334155"/>
+  <!-- Logo/Sensor glow -->
+  <ellipse cx="300" cy="300" rx="20" ry="8" fill="#22d3ee" opacity="0.4"/>
+  <!-- RGB underglow -->
+  <ellipse cx="300" cy="360" rx="110" ry="10" fill="#22d3ee" opacity="0.15"/>
+  <!-- Cable -->
+  <path d="M300 60 Q300 30 330 20 Q380 10 400 30" stroke="#334155" stroke-width="6" stroke-linecap="round" fill="none"/>
+</svg>

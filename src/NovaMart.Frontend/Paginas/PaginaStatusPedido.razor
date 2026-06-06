@@ -1,0 +1,16 @@
+@page "/order/{Id:guid}"
+@attribute [Authorize]
+@using NovaMart.Frontend.Components
+
+<PageTitle>Status do Pedido — NovaMart</PageTitle>
+
+<NovaMart.Frontend.Compartilhados.NavBar />
+<div class="max-w-2xl mx-auto px-4 py-10">
+    <div class="flex items-start justify-between mb-8 flex-wrap gap-4">
+        <div><h1 class="text-2xl font-bold text-slate-900 mb-1">Pedido <span class="text-cyan-600">#NM-@Id.ToString()[..8].ToUpperInvariant()</span></h1></div>
+        <div class="flex items-center gap-2 bg-cyan-50 border border-cyan-200 rounded-full px-3 py-1.5 text-xs text-cyan-600 font-semibold"><i class="fa-solid fa-circle text-xs animate-pulse"></i>Ao vivo</div>
+    </div>
+    <LinhaDoTempoStatus PedidoId="Id" />
+    <div class="mt-6 flex gap-3"><a href="/orders" class="text-xs text-cyan-600 hover:text-cyan-500"><i class="fa-solid fa-arrow-left mr-1"></i> Meus pedidos</a><a href="/catalog" class="text-xs text-slate-400 hover:text-slate-600 ml-auto">Continuar comprando <i class="fa-solid fa-arrow-right ml-1"></i></a></div>
+</div>
+@code { [Parameter] public Guid Id { get; set; } }

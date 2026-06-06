@@ -1,0 +1,29 @@
+services:
+
+  finovatech-gateway-api:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+
+  finovatech-gateway-pagamento:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+
+  finovatech-processador-pagamento:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+
+  finovatech-deteccao-fraude:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+
+  finovatech-servico-notificacao:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+
+  finovatech-servico-catalogo:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+
+  novamart-frontend:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development

@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deteccao-fraude
+  namespace: finovatech
+  labels:
+    app: deteccao-fraude
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: deteccao-fraude
+  template:
+    metadata:
+      labels:
+        app: deteccao-fraude
+    spec:
+      containers:
+        - name: deteccao-fraude
+          image: finovatech/deteccao-fraude:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: finovatech-config
+            - secretRef:
+                name: finovatech-secrets
+          env:
+            - name: AnaliseFraude__ValorMaximoPorTransacao
+              value: "50000"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: deteccao-fraude
+  namespace: finovatech
+spec:
+  selector:
+    app: deteccao-fraude
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP

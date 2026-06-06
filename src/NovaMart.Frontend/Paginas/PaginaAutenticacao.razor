@@ -1,0 +1,221 @@
+@page "/auth"
+@attribute [AllowAnonymous]
+
+<PageTitle>Login — NovaMart</PageTitle>
+
+<div class="min-h-screen bg-slate-50 flex items-center justify-center px-4">
+    <div class="w-full max-w-sm">
+        <div class="text-center mb-8">
+            <a href="/" class="inline-flex flex-col items-center gap-2">
+                <img src="/logo.svg" alt="NovaMart" class="w-12 h-12" />
+                <span class="font-black text-2xl tracking-tight">
+                    <span class="text-slate-900">Nova</span><span class="text-cyan-600">Mart</span>
+                </span>
+            </a>
+            <p class="text-slate-500 text-sm mt-1">Hardware premium com pagamento seguro</p>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-2xl p-8">
+            <div class="flex border-b border-slate-200 mb-6">
+                <button @onclick='() => _aba = "login"'
+                    class="flex-1 pb-3 text-sm font-semibold transition-colors @(_aba=="login"?"text-cyan-600 border-b-2 border-cyan-600 -mb-px":"text-slate-500 border-b-2 border-transparent")">
+                    Login
+                </button>
+                <button @onclick='() => _aba = "registro"'
+                    class="flex-1 pb-3 text-sm font-semibold transition-colors @(_aba=="registro"?"text-cyan-600 border-b-2 border-cyan-600 -mb-px":"text-slate-500 border-b-2 border-transparent")">
+                    Cadastro
+                </button>
+            </div>
+
+            @if (_aba == "login")
+            {
+                @if (!string.IsNullOrEmpty(Erro))
+                {
+                    <div class="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-xs px-3 py-2 rounded-lg mb-4">
+                        <i class="fa-solid fa-circle-exclamation flex-shrink-0"></i>
+                        <span>@MensagemErro</span>
+                    </div>
+                }
+
+                <form id="loginForm" method="post" action="/auth/signin" data-enhance="false" novalidate class="flex flex-col gap-4">
+                    <input type="hidden" name="returnUrl" value="@ReturnUrl" />
+
+                    <div>
+                        <label class="label-a">Email</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                <i class="fa-solid fa-envelope text-slate-400 text-sm"></i>
+                            </span>
+                            <input id="f-email" name="email" type="email" autocomplete="email"
+                                class="input-a pl-10" placeholder="voce@email.com"
+                                oninput="nmClearErr(this)" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="label-a">Senha</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                <i class="fa-solid fa-lock text-slate-400 text-sm"></i>
+                            </span>
+                            <input id="f-senha" name="senha"
+                                type="@(_mostrarSenha ? "text" : "password")"
+                                autocomplete="current-password"
+                                class="input-a pl-10 pr-10"
+                                placeholder="••••••••"
+                                oninput="nmClearErr(this)" />
+                            <button type="button" @onclick="() => _mostrarSenha = !_mostrarSenha"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                                @if (_mostrarSenha)
+                                {
+                                    <i class="fa-solid fa-eye-slash text-sm"></i>
+                                }
+                                else
+                                {
+                                    <i class="fa-solid fa-eye text-sm"></i>
+                                }
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="nmSubmit()"
+                        class="w-full bg-cyan-500 text-white font-bold py-3 rounded-lg mt-1 hover:bg-cyan-400 transition-colors flex items-center justify-center gap-2">
+                        <span id="btn-text" class="flex items-center gap-2">
+                            <i class="fa-solid fa-right-to-bracket"></i> Entrar
+                        </span>
+                        <span id="btn-loading" style="display:none" class="items-center gap-2">
+                            <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Entrando...
+                        </span>
+                    </button>
+                </form>
+
+                <div class="mt-4 text-center">
+                    <a href="#" class="text-sm text-slate-400 hover:text-cyan-600 hover:underline transition-colors">
+                        Esqueceu a senha?
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="flex flex-col gap-4">
+                    <div>
+                        <label class="label-a">Nome completo</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                <i class="fa-solid fa-user text-slate-400 text-sm"></i>
+                            </span>
+                            <input class="input-a pl-10" placeholder="Seu nome" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="label-a">Email</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                <i class="fa-solid fa-envelope text-slate-400 text-sm"></i>
+                            </span>
+                            <input type="email" class="input-a pl-10" placeholder="voce@email.com" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="label-a">Senha</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                <i class="fa-solid fa-lock text-slate-400 text-sm"></i>
+                            </span>
+                            <input type="@(_mostrarSenhaCadastro ? "text" : "password")"
+                                class="input-a pl-10 pr-10" placeholder="Mínimo 8 caracteres" />
+                            <button type="button" @onclick="() => _mostrarSenhaCadastro = !_mostrarSenhaCadastro"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                                <i class="@(_mostrarSenhaCadastro ? "fa-solid fa-eye-slash" : "fa-solid fa-eye") text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="label-a">Confirmar senha</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                <i class="fa-solid fa-lock text-slate-400 text-sm"></i>
+                            </span>
+                            <input type="password" class="input-a pl-10" placeholder="Repita a senha" />
+                        </div>
+                    </div>
+                    <button class="w-full bg-cyan-500 text-white font-bold py-3 rounded-lg mt-1 hover:bg-cyan-400 transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-user-plus"></i> Criar conta
+                    </button>
+                </div>
+            }
+        </div>
+
+        <p class="text-center text-xs text-slate-400 mt-6">
+            <i class="fa-solid fa-lock mr-1"></i> JWT armazenado em cookie HttpOnly
+        </p>
+    </div>
+</div>
+
+<style>
+    .label-a { display: block; font-size: .75rem; font-weight: 600; color: rgb(100 116 139); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .375rem; }
+    .input-a { display: block; width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: .375rem; padding: .625rem .875rem; color: #0f172a; font-size: .875rem; outline: none; transition: border-color .15s, box-shadow .15s; }
+    .input-a:focus { border-color: rgba(6,182,212,.5); box-shadow: 0 0 0 3px rgba(6,182,212,.08); }
+    .input-a.pl-10 { padding-left: 2.5rem; }
+    .input-a.pr-10 { padding-right: 2.5rem; }
+    .input-a.nm-invalid { border-color: #ef4444; background: #fff5f5; box-shadow: none; }
+    .nm-field-err { color: #ef4444; font-size: .72rem; margin-top: .3rem; display: flex; align-items: center; gap: .3rem; }
+</style>
+
+<script>
+function nmSubmit() {
+    var email = document.getElementById('f-email');
+    var senha = document.getElementById('f-senha');
+    var ok = true;
+
+    nmClearErr(email);
+    nmClearErr(senha);
+
+    if (!email.value.trim()) { nmAddErr(email, 'Campo obrigatório'); ok = false; }
+    if (!senha.value.trim()) { nmAddErr(senha, 'Campo obrigatório'); ok = false; }
+
+    if (!ok) return;
+
+    if (window._nms) return;
+    window._nms = true;
+
+    document.getElementById('btn-text').style.display = 'none';
+    document.getElementById('btn-loading').style.display = 'flex';
+
+    document.getElementById('loginForm').submit();
+}
+
+function nmAddErr(input, msg) {
+    input.classList.add('nm-invalid');
+    var p = document.createElement('p');
+    p.className = 'nm-field-err';
+    p.innerHTML = '<svg width="12" height="12" viewBox="0 0 20 20" fill="#ef4444"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>' + msg;
+    input.closest('.relative').insertAdjacentElement('afterend', p);
+}
+
+function nmClearErr(input) {
+    input.classList.remove('nm-invalid');
+    var next = input.closest('.relative').nextElementSibling;
+    if (next && next.classList.contains('nm-field-err')) next.remove();
+}
+</script>
+
+@code {
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    private string? ReturnUrl { get; set; }
+
+    [SupplyParameterFromQuery(Name = "erro")]
+    private string? Erro { get; set; }
+
+    private string _aba             = "login";
+    private bool   _mostrarSenha;
+    private bool   _mostrarSenhaCadastro;
+
+    private string MensagemErro => Erro switch
+    {
+        "credenciais" => "Email ou senha incorretos.",
+        "preencha"    => "Preencha o email e a senha.",
+        _             => "Erro ao realizar login. Tente novamente."
+    };
+}

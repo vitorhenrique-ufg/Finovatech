@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "GatewayApi (Local)": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "health",
+      "applicationUrl": "http://localhost:8000",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Jwt__ChaveSecreta": "finovatech-super-secret-key-2026-production!",
+        "Jwt__Emissor": "finovatech",
+        "Jwt__Audiencia": "novamart",
+        "ConnectionStrings__Redis": "localhost:16379",
+        "ReverseProxy__Clusters__gateway-pagamento__Destinations__primary__Address": "http://localhost:8001",
+        "ReverseProxy__Clusters__servico-catalogo__Destinations__primary__Address": "http://localhost:8005",
+        "ReverseProxy__Clusters__servico-notificacao__Destinations__primary__Address": "http://localhost:8004"
+      }
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchBrowser": false,
+      "publishAllPorts": true,
+      "useSSL": false
+    }
+  }
+}

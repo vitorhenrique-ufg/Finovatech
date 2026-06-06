@@ -1,0 +1,55 @@
+@page "/cart"
+@using NovaMart.Frontend.Modelos
+@using NovaMart.Frontend.Servicos
+@inject IServicoCarrinho Carrinho
+
+<PageTitle>Meu Carrinho (@Carrinho.TotalItens) — NovaMart</PageTitle>
+
+<NovaMart.Frontend.Compartilhados.NavBar />
+
+<div class="max-w-7xl mx-auto px-4 py-10">
+    <h1 class="text-2xl font-bold text-slate-900 mb-8">Meu Carrinho <span class="text-slate-500 font-normal text-lg">(@Carrinho.TotalItens @(Carrinho.TotalItens == 1 ? "item" : "itens"))</span></h1>
+    @if (!Carrinho.Itens.Any())
+    {
+        <div class="flex flex-col items-center py-24 text-center"><div><i class="fa-solid fa-cart-shopping text-5xl mb-4 text-slate-300"></i></div><h3 class="text-xl font-bold text-slate-600 mb-2">Carrinho vazio</h3><a href="/catalog" class="mt-4 bg-cyan-500 text-white font-bold px-5 py-2.5 rounded-lg">Explorar catálogo</a></div>
+    }
+    else
+    {
+        <div class="flex flex-col lg:flex-row gap-8">
+            <div class="flex-1 flex flex-col gap-3">
+                @foreach (ItemCarrinhoViewModel item in Carrinho.Itens)
+                {
+                    <div class="flex gap-4 p-4 bg-white border border-slate-200 rounded-xl">
+                        <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border border-slate-200 flex items-center justify-center flex-shrink-0"><div class="w-10 h-6 border border-cyan-200 bg-cyan-50 rounded"></div></div>
+                        <div class="flex-1 min-w-0"><h3 class="text-sm font-semibold text-slate-900 mb-1 truncate">@item.Nome</h3><p class="text-xs text-slate-400">R$ @item.Preco.ToString("N2") por unidade</p></div>
+                        <div class="flex flex-col items-end justify-between">
+                            <button @onclick="() => Carrinho.RemoveItem(item.ProdutoId)" class="text-slate-400 hover:text-red-400 text-xs"><i class="fa-solid fa-xmark"></i></button>
+                            <div class="flex items-center gap-2">
+                                <button @onclick="() => Carrinho.AtualizequantidadeItem(item.ProdutoId, item.Quantidade - 1)" class="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 text-sm font-bold"><i class="fa-solid fa-minus text-xs"></i></button>
+                                <span class="text-sm font-bold text-slate-900 w-4 text-center">@item.Quantidade</span>
+                                <button @onclick="() => Carrinho.AtualizequantidadeItem(item.ProdutoId, item.Quantidade + 1)" class="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 text-sm font-bold"><i class="fa-solid fa-plus text-xs"></i></button>
+                            </div>
+                            <span class="text-base font-black text-slate-900">R$ @item.Total.ToString("N2")</span>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="lg:w-80 flex-shrink-0">
+                <div class="bg-white border border-slate-200 rounded-xl p-5 sticky top-20 flex flex-col gap-4">
+                    <h2 class="text-base font-bold text-slate-900">Resumo do pedido</h2>
+                    <div class="flex gap-2"><input @bind="_cupom" placeholder="Código de cupom" class="flex-1 bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 outline-none focus:border-cyan-500/40" /><button @onclick="() => { if(!string.IsNullOrWhiteSpace(_cupom)) Carrinho.ApliceCupom(_cupom); }" class="border border-slate-200 text-slate-600 text-xs px-3 py-2 rounded-lg hover:border-slate-400">Aplicar</button></div>
+                    <div class="flex flex-col gap-2 text-sm pb-4 border-b border-slate-200">
+                        <div class="flex justify-between"><span class="text-slate-500">Subtotal</span><span class="text-slate-700">R$ @Carrinho.Subtotal.ToString("N2")</span></div>
+                        @if (Carrinho.Desconto > 0) { <div class="flex justify-between text-green-400"><span>Desconto</span><span>− R$ @Carrinho.Desconto.ToString("N2")</span></div> }
+                        <div class="flex justify-between"><span class="text-slate-500">Frete</span><span class="text-green-400">Grátis</span></div>
+                    </div>
+                    <div class="flex justify-between items-baseline"><span class="font-bold text-slate-900">Total</span><span class="text-2xl font-black text-cyan-600">R$ @Carrinho.TotalComDesconto.ToString("N2")</span></div>
+                    <a href="/checkout" class="bg-cyan-500 text-white font-bold text-sm py-3 rounded-lg text-center hover:bg-cyan-400">Finalizar compra →</a>
+                    <a href="/catalog" class="text-center text-xs text-slate-400 hover:text-slate-600">Continuar comprando</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code { private string _cupom = string.Empty; }

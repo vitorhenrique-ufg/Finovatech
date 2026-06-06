@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meus Pedidos — NovaMart</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="shared.css">
+</head>
+<body class="bg-[#09090b] text-slate-100">
+
+  <!-- ============================================================
+       NAVBAR
+  ============================================================ -->
+  <nav class="sticky top-0 z-50 bg-[#0d111a]/90 backdrop-blur border-b border-[#1e293b]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center h-14 gap-4">
+
+        <!-- Logo -->
+        <a href="index.html" class="flex-shrink-0 font-black text-xl tracking-tight">
+          <span class="text-white">Nova</span><span class="text-cyan-400">Mart</span>
+        </a>
+
+        <!-- Desktop links -->
+        <div class="hidden md:flex items-center gap-6 ml-6">
+          <a href="catalog.html" class="text-sm text-slate-400 hover:text-slate-100 transition-colors">Catálogo</a>
+          <a href="catalog.html?cat=gpus" class="text-sm text-slate-400 hover:text-slate-100 transition-colors">GPUs</a>
+          <a href="catalog.html?cat=perifericos" class="text-sm text-slate-400 hover:text-slate-100 transition-colors">Periféricos</a>
+          <a href="catalog.html?cat=licencas" class="text-sm text-slate-400 hover:text-slate-100 transition-colors">Licenças</a>
+        </div>
+
+        <!-- Search (desktop) -->
+        <div class="hidden md:flex flex-1 max-w-xs ml-auto relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+          </svg>
+          <input type="text" placeholder="Buscar produtos..." class="w-full bg-[#111827] border border-[#1e293b] rounded-md pl-9 pr-3 py-2 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400/40 transition-colors">
+        </div>
+
+        <!-- Login (desktop) -->
+        <a href="auth.html" class="hidden md:inline-flex text-sm text-slate-400 hover:text-slate-100 transition-colors flex-shrink-0">
+          Login
+        </a>
+
+        <!-- Cart (desktop) -->
+        <a href="cart.html" class="hidden md:inline-flex relative items-center justify-center w-9 h-9 rounded-md hover:bg-[#1e293b] transition-colors">
+          <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m12-9l2 9m-9-4h4"/>
+          </svg>
+          <span class="absolute -top-1 -right-1 w-4 h-4 bg-cyan-400 text-[#09090b] rounded-full text-[10px] font-bold flex items-center justify-center">2</span>
+        </a>
+
+        <!-- Mobile: cart + hamburger -->
+        <div class="flex items-center gap-2 md:hidden ml-auto">
+          <a href="cart.html" class="relative inline-flex items-center justify-center w-9 h-9 rounded-md hover:bg-[#1e293b] transition-colors">
+            <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m12-9l2 9m-9-4h4"/>
+            </svg>
+            <span class="absolute -top-1 -right-1 w-4 h-4 bg-cyan-400 text-[#09090b] rounded-full text-[10px] font-bold flex items-center justify-center">2</span>
+          </a>
+          <button onclick="toggleMobileMenu()" class="inline-flex items-center justify-center w-9 h-9 rounded-md hover:bg-[#1e293b] transition-colors">
+            <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="hidden md:hidden border-t border-[#1e293b] bg-[#0d111a]">
+      <div class="px-4 py-3 flex flex-col gap-1">
+        <div class="relative mb-2">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+          </svg>
+          <input type="text" placeholder="Buscar produtos..." class="w-full bg-[#111827] border border-[#1e293b] rounded-md pl-9 pr-3 py-2 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400/40 transition-colors">
+        </div>
+        <a href="catalog.html" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2 border-b border-[#1e293b]/50">Catálogo</a>
+        <a href="catalog.html?cat=gpus" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2 border-b border-[#1e293b]/50">GPUs</a>
+        <a href="catalog.html?cat=perifericos" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2 border-b border-[#1e293b]/50">Periféricos</a>
+        <a href="catalog.html?cat=licencas" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2 border-b border-[#1e293b]/50">Licenças</a>
+        <a href="auth.html" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2">Login</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       MAIN CONTENT
+  ============================================================ -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Page header -->
+    <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+      <h1 class="text-2xl font-bold text-white">Meus Pedidos</h1>
+      <select class="bg-[#111827] border border-[#1e293b] text-slate-300 text-sm rounded-lg px-3 py-2 outline-none">
+        <option>Últimos 30 dias</option>
+        <option>Últimos 3 meses</option>
+        <option>2026</option>
+        <option>Todos</option>
+      </select>
+    </div>
+
+    <!-- ============================================================
+         DESKTOP TABLE (hidden md:block)
+    ============================================================ -->
+    <div class="hidden md:block bg-[#111827] border border-[#1e293b] rounded-2xl overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="border-b border-[#1e293b]">
+          <tr>
+            <th class="text-left px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Pedido</th>
+            <th class="text-left px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Data</th>
+            <th class="text-left px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Produto(s)</th>
+            <th class="text-right px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Valor</th>
+            <th class="text-center px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
+            <th class="px-5 py-3.5"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Row 1 -->
+          <tr class="border-b border-[#0d111a] hover:bg-[#0d111a] transition-colors">
+            <td class="px-5 py-4 text-cyan-400 font-mono font-semibold">#NM-20481</td>
+            <td class="px-5 py-4 text-slate-400">28/05/2026</td>
+            <td class="px-5 py-4 text-slate-300">RTX 4080 Super, MX Keys S</td>
+            <td class="px-5 py-4 text-white font-bold text-right">R$ 4.948</td>
+            <td class="px-5 py-4 text-center"><span class="badge-pending text-xs px-2.5 py-1 rounded-full">Em análise</span></td>
+            <td class="px-5 py-4 text-right"><a href="order-status.html" class="text-xs text-cyan-400 hover:text-cyan-300 font-medium">Ver →</a></td>
+          </tr>
+          <!-- Row 2 -->
+          <tr class="border-b border-[#0d111a] hover:bg-[#0d111a] transition-colors">
+            <td class="px-5 py-4 text-cyan-400 font-mono font-semibold">#NM-20342</td>
+            <td class="px-5 py-4 text-slate-400">15/05/2026</td>
+            <td class="px-5 py-4 text-slate-300">Ryzen 9 7950X</td>
+            <td class="px-5 py-4 text-white font-bold text-right">R$ 2.799</td>
+            <td class="px-5 py-4 text-center"><span class="badge-approved text-xs px-2.5 py-1 rounded-full">Aprovado</span></td>
+            <td class="px-5 py-4 text-right"><a href="order-status.html" class="text-xs text-cyan-400 hover:text-cyan-300 font-medium">Ver →</a></td>
+          </tr>
+          <!-- Row 3 -->
+          <tr class="border-b border-[#0d111a] hover:bg-[#0d111a] transition-colors">
+            <td class="px-5 py-4 text-cyan-400 font-mono font-semibold">#NM-20198</td>
+            <td class="px-5 py-4 text-slate-400">03/05/2026</td>
+            <td class="px-5 py-4 text-slate-300">Windows 11 Pro</td>
+            <td class="px-5 py-4 text-white font-bold text-right">R$ 299</td>
+            <td class="px-5 py-4 text-center"><span class="badge-rejected text-xs px-2.5 py-1 rounded-full">Rejeitado</span></td>
+            <td class="px-5 py-4 text-right"><a href="order-status.html" class="text-xs text-cyan-400 hover:text-cyan-300 font-medium">Ver →</a></td>
+          </tr>
+          <!-- Row 4 -->
+          <tr class="border-b border-[#0d111a] hover:bg-[#0d111a] transition-colors">
+            <td class="px-5 py-4 text-cyan-400 font-mono font-semibold">#NM-19887</td>
+            <td class="px-5 py-4 text-slate-400">20/04/2026</td>
+            <td class="px-5 py-4 text-slate-300">HyperX DDR5 64GB</td>
+            <td class="px-5 py-4 text-white font-bold text-right">R$ 899</td>
+            <td class="px-5 py-4 text-center"><span class="badge-approved text-xs px-2.5 py-1 rounded-full">Aprovado</span></td>
+            <td class="px-5 py-4 text-right"><a href="order-status.html" class="text-xs text-cyan-400 hover:text-cyan-300 font-medium">Ver →</a></td>
+          </tr>
+          <!-- Row 5 -->
+          <tr class="hover:bg-[#0d111a] transition-colors">
+            <td class="px-5 py-4 text-cyan-400 font-mono font-semibold">#NM-19654</td>
+            <td class="px-5 py-4 text-slate-400">08/04/2026</td>
+            <td class="px-5 py-4 text-slate-300">MX Keys S, Logitech G Pro X</td>
+            <td class="px-5 py-4 text-white font-bold text-right">R$ 1.149</td>
+            <td class="px-5 py-4 text-center"><span class="badge-approved text-xs px-2.5 py-1 rounded-full">Aprovado</span></td>
+            <td class="px-5 py-4 text-right"><a href="order-status.html" class="text-xs text-cyan-400 hover:text-cyan-300 font-medium">Ver →</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ============================================================
+         MOBILE CARDS (md:hidden)
+    ============================================================ -->
+    <div class="md:hidden flex flex-col gap-3">
+
+      <!-- Card 1 -->
+      <div class="bg-[#111827] border border-[#1e293b] rounded-xl p-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-cyan-400 font-mono font-semibold text-sm">#NM-20481</p>
+            <p class="text-slate-500 text-xs mt-0.5">28/05/2026</p>
+            <p class="text-slate-300 text-sm mt-1">RTX 4080 Super, MX Keys S</p>
+          </div>
+          <div class="flex flex-col items-end gap-2">
+            <p class="text-white font-bold text-sm">R$ 4.948</p>
+            <span class="badge-pending text-xs">Em análise</span>
+            <a href="order-status.html" class="text-xs text-cyan-400 hover:text-cyan-300 font-medium">Ver →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="bg-[#111827] border border-[#1e293b] rounded-xl p-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-cyan-400 font-mono font-semibold text-sm">#NM-20342</p>
+            <p class="text-slate-500 text-xs mt-0.5">15/05/2026</p>
+            <p class="text-slate-300 text-sm mt-1">Ryzen 9 7950X</p>
+          </div>
+          <div class="flex flex-col items-end gap-2">
+            <p class="text-white font-bold text-sm">R$ 2.799</p>
+            <span class="badge-approved text-xs">Aprovado</span>
+            <a href="order-status.html" class="text-xs text-cyan-400 hover:text-cyan-300 font-medium">Ver →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="bg-[#111827] border border-[#1e293b] rounded-xl p-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-cyan-400 font-mono font-semibold text-sm">#NM-20198</p>
+            <p class="text-slate-500 text-xs mt-0.5">03/05/2026</p>
+            <p class="text-slate-300 text-sm mt-1">Windows 11 Pro</p>
+          </div>
+          <div class="flex flex-col items-end gap-2">
+            <p class="text-white font-bold text-sm">R$ 299</p>
+            <span class="badge-rejected text-xs">Rejeitado</span>
+            <a href="order-status.html" class="text-xs text-cyan-400 hover:text-cyan-300 font-medium">Ver →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="bg-[#111827] border border-[#1e293b] rounded-xl p-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-cyan-400 font-mono font-semibold text-sm">#NM-19887</p>
+            <p class="text-slate-500 text-xs mt-0.5">20/04/2026</p>
+            <p class="text-slate-300 text-sm mt-1">HyperX DDR5 64GB</p>
+          </div>
+          <div class="flex flex-col items-end gap-2">
+            <p class="text-white font-bold text-sm">R$ 899</p>
+            <span class="badge-approved text-xs">Aprovado</span>
+            <a href="order-status.html" class="text-xs text-cyan-400 hover:text-cyan-300 font-medium">Ver →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="bg-[#111827] border border-[#1e293b] rounded-xl p-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-cyan-400 font-mono font-semibold text-sm">#NM-19654</p>
+            <p class="text-slate-500 text-xs mt-0.5">08/04/2026</p>
+            <p class="text-slate-300 text-sm mt-1">MX Keys S, Logitech G Pro X</p>
+          </div>
+          <div class="flex flex-col items-end gap-2">
+            <p class="text-white font-bold text-sm">R$ 1.149</p>
+            <span class="badge-approved text-xs">Aprovado</span>
+            <a href="order-status.html" class="text-xs text-cyan-400 hover:text-cyan-300 font-medium">Ver →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-center gap-1 mt-10">
+      <button class="btn-ghost text-xs py-2 px-3">&#8592;</button>
+      <button class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-cyan-400 text-[#09090b] text-xs font-bold">1</button>
+      <button class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-white hover:bg-[#1e293b] text-xs transition-colors">2</button>
+      <button class="btn-ghost text-xs py-2 px-3">&#8594;</button>
+    </div>
+
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="border-t border-[#1e293b] py-10 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+
+        <!-- Logo -->
+        <a href="index.html" class="font-black text-lg tracking-tight">
+          <span class="text-white">Nova</span><span class="text-cyan-400">Mart</span>
+        </a>
+
+        <!-- Nav links -->
+        <nav class="flex items-center gap-6">
+          <a href="#" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Termos</a>
+          <a href="#" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Privacidade</a>
+          <a href="#" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Suporte</a>
+        </nav>
+
+        <!-- Copyright -->
+        <p class="text-xs text-slate-600">&copy; 2026 NovaMart. Todos os direitos reservados.</p>
+
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       TOAST NOTIFICATION
+  ============================================================ -->
+  <div id="toast"
+       class="hidden fixed bottom-5 right-5 z-[100] animate-fade-up bg-[#111827] border border-[#22d3ee33] rounded-xl px-5 py-3 shadow-2xl flex items-center gap-3 max-w-xs">
+    <span class="animate-blink w-2 h-2 rounded-full bg-cyan-400 flex-shrink-0"></span>
+    <span id="toastMsg" class="text-sm text-slate-100 font-medium">Notificação</span>
+  </div>
+
+  <!-- ============================================================
+       INLINE SCRIPTS
+  ============================================================ -->
+  <script>
+    function toggleMobileMenu() {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    }
+
+    function showToast(msg = 'Adicionado ao carrinho ✓') {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      t.classList.remove('hidden');
+      setTimeout(() => t.classList.add('hidden'), 3000);
+    }
+  </script>
+
+</body>
+</html>

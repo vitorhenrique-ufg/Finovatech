@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RTX 4080 Super — NovaMart</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="shared.css">
+</head>
+<body class="bg-[#09090b] text-slate-100">
+
+  <!-- ============================================================
+       NAVBAR
+  ============================================================ -->
+  <nav class="sticky top-0 z-50 bg-[#0d111a]/90 backdrop-blur border-b border-[#1e293b]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center h-14 gap-4">
+
+        <!-- Logo -->
+        <a href="index.html" class="flex-shrink-0 font-black text-xl tracking-tight">
+          <span class="text-white">Nova</span><span class="text-cyan-400">Mart</span>
+        </a>
+
+        <!-- Desktop links -->
+        <div class="hidden md:flex items-center gap-6 ml-6">
+          <a href="catalog.html" class="text-sm text-slate-400 hover:text-slate-100 transition-colors">Catálogo</a>
+          <a href="catalog.html?cat=gpus" class="text-sm text-slate-400 hover:text-slate-100 transition-colors">GPUs</a>
+          <a href="catalog.html?cat=perifericos" class="text-sm text-slate-400 hover:text-slate-100 transition-colors">Periféricos</a>
+          <a href="catalog.html?cat=licencas" class="text-sm text-slate-400 hover:text-slate-100 transition-colors">Licenças</a>
+        </div>
+
+        <!-- Search (desktop) -->
+        <div class="hidden md:flex flex-1 max-w-xs ml-auto relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+          </svg>
+          <input type="text" placeholder="Buscar produtos..." class="w-full bg-[#111827] border border-[#1e293b] rounded-md pl-9 pr-3 py-2 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400/40 transition-colors">
+        </div>
+
+        <!-- Login (desktop) -->
+        <a href="auth.html" class="hidden md:inline-flex text-sm text-slate-400 hover:text-slate-100 transition-colors flex-shrink-0">
+          Login
+        </a>
+
+        <!-- Cart (desktop) -->
+        <a href="cart.html" class="hidden md:inline-flex relative items-center justify-center w-9 h-9 rounded-md hover:bg-[#1e293b] transition-colors">
+          <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m12-9l2 9m-9-4h4"/>
+          </svg>
+          <span class="absolute -top-1 -right-1 w-4 h-4 bg-cyan-400 text-[#09090b] rounded-full text-[10px] font-bold flex items-center justify-center">2</span>
+        </a>
+
+        <!-- Mobile: cart + hamburger -->
+        <div class="flex items-center gap-2 md:hidden ml-auto">
+          <a href="cart.html" class="relative inline-flex items-center justify-center w-9 h-9 rounded-md hover:bg-[#1e293b] transition-colors">
+            <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m12-9l2 9m-9-4h4"/>
+            </svg>
+            <span class="absolute -top-1 -right-1 w-4 h-4 bg-cyan-400 text-[#09090b] rounded-full text-[10px] font-bold flex items-center justify-center">2</span>
+          </a>
+          <button onclick="toggleMobileMenu()" class="inline-flex items-center justify-center w-9 h-9 rounded-md hover:bg-[#1e293b] transition-colors">
+            <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="hidden md:hidden border-t border-[#1e293b] bg-[#0d111a]">
+      <div class="px-4 py-3 flex flex-col gap-1">
+        <div class="relative mb-2">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+          </svg>
+          <input type="text" placeholder="Buscar produtos..." class="w-full bg-[#111827] border border-[#1e293b] rounded-md pl-9 pr-3 py-2 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400/40 transition-colors">
+        </div>
+        <a href="catalog.html" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2 border-b border-[#1e293b]/50">Catálogo</a>
+        <a href="catalog.html?cat=gpus" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2 border-b border-[#1e293b]/50">GPUs</a>
+        <a href="catalog.html?cat=perifericos" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2 border-b border-[#1e293b]/50">Periféricos</a>
+        <a href="catalog.html?cat=licencas" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2 border-b border-[#1e293b]/50">Licenças</a>
+        <a href="auth.html" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2">Login</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       BREADCRUMB
+  ============================================================ -->
+  <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-xs text-slate-500 flex items-center gap-2 flex-wrap">
+    <a href="index.html" class="hover:text-slate-300">Home</a>
+    <span>›</span>
+    <a href="catalog.html" class="hover:text-slate-300">Catálogo</a>
+    <span>›</span>
+    <a href="catalog.html?cat=gpus" class="hover:text-slate-300">GPUs</a>
+    <span>›</span>
+    <span class="text-slate-300">RTX 4080 Super</span>
+  </nav>
+
+  <!-- ============================================================
+       MAIN CONTENT
+  ============================================================ -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+
+    <!-- Product layout: gallery + info -->
+    <div class="flex flex-col lg:flex-row gap-10">
+
+      <!-- ========================================================
+           LEFT — Gallery
+      ======================================================== -->
+      <div class="lg:w-1/2">
+
+        <!-- Main image -->
+        <div class="w-full aspect-square bg-gradient-to-br from-[#1a2235] to-[#0f172a] rounded-2xl border border-[#1e293b] flex items-center justify-center relative overflow-hidden">
+          <!-- Glow -->
+          <div class="glow-cyan absolute inset-0 opacity-50 pointer-events-none"></div>
+          <!-- Placeholder -->
+          <div class="w-40 h-24 border border-[#22d3ee44] bg-[#22d3ee0d] rounded-lg relative z-10 flex items-center justify-center">
+            <svg class="w-20 h-12 text-cyan-400/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <rect x="2" y="6" width="20" height="12" rx="2" stroke-width="1.5"/>
+              <path stroke-linecap="round" stroke-width="1.5" d="M6 6V4M10 6V4M14 6V4M18 6V4M6 18v2M10 18v2M14 18v2M18 18v2"/>
+              <rect x="5" y="9" width="14" height="6" rx="1" stroke-width="1.5"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Thumbnails -->
+        <div class="flex gap-3 mt-4">
+
+          <!-- Thumbnail 1 (selected) -->
+          <button class="flex-1 aspect-square bg-[#111827] rounded-xl flex items-center justify-center border-2 border-cyan-400 transition-colors">
+            <div class="w-8 h-5 border border-[#22d3ee44] bg-[#22d3ee0d] rounded"></div>
+          </button>
+
+          <!-- Thumbnail 2 -->
+          <button class="flex-1 aspect-square bg-[#111827] rounded-xl flex items-center justify-center border border-[#1e293b] hover:border-[#22d3ee44] transition-colors">
+            <div class="w-8 h-5 border border-[#1e293b] bg-[#0f172a] rounded"></div>
+          </button>
+
+          <!-- Thumbnail 3 -->
+          <button class="flex-1 aspect-square bg-[#111827] rounded-xl flex items-center justify-center border border-[#1e293b] hover:border-[#22d3ee44] transition-colors">
+            <div class="w-8 h-5 border border-[#1e293b] bg-[#0f172a] rounded"></div>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- ========================================================
+           RIGHT — Product Info
+      ======================================================== -->
+      <div class="lg:w-1/2">
+
+        <!-- Category badge -->
+        <span class="badge-cyan text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-full">GPU</span>
+
+        <!-- Product name -->
+        <h1 class="text-2xl sm:text-3xl font-black text-white mt-3 mb-2 tracking-tight">RTX 4080 Super 16GB GDDR6X</h1>
+
+        <!-- Stars -->
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-yellow-400">★★★★</span><span class="text-slate-600">★</span>
+          <span class="text-sm text-slate-400">4.2 · 127 avaliações</span>
+        </div>
+
+        <!-- Price block -->
+        <div class="mb-2 flex items-baseline gap-3 flex-wrap">
+          <span class="text-4xl font-black text-white">R$ 4.299</span>
+          <span class="text-slate-500 line-through text-lg">R$ 5.049</span>
+          <span class="bg-red-500/20 text-red-400 text-sm font-bold px-2 py-0.5 rounded">-15%</span>
+        </div>
+        <p class="text-xs text-slate-500 mb-4">Em até 12× de R$ 358,25 sem juros</p>
+
+        <!-- Stock indicator -->
+        <div class="flex items-center gap-2 mb-6">
+          <span class="w-2 h-2 rounded-full bg-green-400"></span>
+          <span class="text-sm text-green-400 font-medium">Em estoque · 7 unidades</span>
+        </div>
+
+        <!-- CTA buttons -->
+        <div class="flex flex-col sm:flex-row gap-3 mb-8">
+          <button onclick="addToCart()" class="btn-primary flex-1">+ Adicionar ao carrinho</button>
+          <button class="btn-ghost flex-shrink-0 px-4">♡ Favoritar</button>
+        </div>
+
+        <!-- Specs table -->
+        <div class="border-t border-[#1e293b] pt-6">
+          <p class="text-sm font-bold text-slate-300 mb-4 uppercase tracking-wider">Especificações</p>
+          <table class="w-full text-sm">
+            <tbody>
+              <tr class="border-b border-[#1e293b]">
+                <td class="py-2.5 text-slate-500">VRAM</td>
+                <td class="py-2.5 text-slate-200 font-medium text-right">16 GB GDDR6X</td>
+              </tr>
+              <tr class="border-b border-[#1e293b]">
+                <td class="py-2.5 text-slate-500">Clock Base</td>
+                <td class="py-2.5 text-slate-200 font-medium text-right">2295 MHz</td>
+              </tr>
+              <tr class="border-b border-[#1e293b]">
+                <td class="py-2.5 text-slate-500">Clock Boost</td>
+                <td class="py-2.5 text-slate-200 font-medium text-right">2550 MHz</td>
+              </tr>
+              <tr class="border-b border-[#1e293b]">
+                <td class="py-2.5 text-slate-500">TDP</td>
+                <td class="py-2.5 text-slate-200 font-medium text-right">320W</td>
+              </tr>
+              <tr class="border-b border-[#1e293b]">
+                <td class="py-2.5 text-slate-500">Slot PCIe</td>
+                <td class="py-2.5 text-slate-200 font-medium text-right">PCIe 4.0 ×16</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 text-slate-500">Garantia</td>
+                <td class="py-2.5 text-slate-200 font-medium text-right">3 anos</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================
+         RELATED PRODUCTS SECTION
+    ============================================================ -->
+    <section class="mt-16">
+
+      <!-- Section header -->
+      <div class="flex items-center gap-4 mb-8">
+        <h2 class="text-xl font-bold text-white whitespace-nowrap">Relacionados</h2>
+        <div class="flex-1 h-px bg-[#1e293b]"></div>
+      </div>
+
+      <!-- Products grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+        <!-- Related 1: RX 7900 XT -->
+        <div class="group bg-[#111827] border border-[#1e293b] rounded-xl overflow-hidden hover:border-cyan-400/30 transition-all duration-200">
+          <div class="relative" style="height: 160px; background: linear-gradient(135deg, #0d111a 0%, #131d2e 100%);">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <svg class="w-16 h-16 text-cyan-400/25" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <rect x="2" y="6" width="20" height="12" rx="2" stroke-width="1.5"/>
+                <path stroke-linecap="round" stroke-width="1.5" d="M6 6V4M10 6V4M14 6V4M18 6V4M6 18v2M10 18v2M14 18v2M18 18v2"/>
+                <rect x="5" y="9" width="14" height="6" rx="1" stroke-width="1.5"/>
+              </svg>
+            </div>
+          </div>
+          <div class="p-4">
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-cyan-400 mb-1">GPU</p>
+            <a href="product.html" class="text-sm font-semibold text-white hover:text-cyan-400 transition-colors leading-snug block mb-2">RX 7900 XT</a>
+            <div class="flex items-center gap-1 mb-3">
+              <span class="text-yellow-400 text-xs">★★★★</span><span class="text-slate-600 text-xs">★</span>
+              <span class="text-xs text-slate-500 ml-1">(98)</span>
+            </div>
+            <div class="flex items-baseline gap-2 mb-3">
+              <span class="text-lg font-black text-cyan-400">R$ 3.199</span>
+            </div>
+            <button onclick="showToast('RX 7900 XT adicionada ao carrinho ✓')"
+                    class="w-full bg-cyan-400/10 hover:bg-cyan-400/20 border border-cyan-400/20 hover:border-cyan-400/40 text-cyan-400 text-sm font-semibold py-2 rounded-lg transition-all duration-200 flex items-center justify-center gap-2">
+              <span class="text-base leading-none">+</span> Adicionar ao carrinho
+            </button>
+          </div>
+        </div>
+
+        <!-- Related 2: RTX 4070 Ti Super -->
+        <div class="group bg-[#111827] border border-[#1e293b] rounded-xl overflow-hidden hover:border-cyan-400/30 transition-all duration-200">
+          <div class="relative" style="height: 160px; background: linear-gradient(135deg, #0d111a 0%, #131d2e 100%);">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <svg class="w-16 h-16 text-cyan-400/25" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <rect x="2" y="6" width="20" height="12" rx="2" stroke-width="1.5"/>
+                <path stroke-linecap="round" stroke-width="1.5" d="M6 6V4M10 6V4M14 6V4M18 6V4M6 18v2M10 18v2M14 18v2M18 18v2"/>
+                <rect x="5" y="9" width="14" height="6" rx="1" stroke-width="1.5"/>
+              </svg>
+            </div>
+          </div>
+          <div class="p-4">
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-cyan-400 mb-1">GPU</p>
+            <a href="product.html" class="text-sm font-semibold text-white hover:text-cyan-400 transition-colors leading-snug block mb-2">RTX 4070 Ti Super</a>
+            <div class="flex items-center gap-1 mb-3">
+              <span class="text-yellow-400 text-xs">★★★★★</span>
+              <span class="text-xs text-slate-500 ml-1">(74)</span>
+            </div>
+            <div class="flex items-baseline gap-2 mb-3">
+              <span class="text-lg font-black text-cyan-400">R$ 2.999</span>
+            </div>
+            <button onclick="showToast('RTX 4070 Ti Super adicionada ao carrinho ✓')"
+                    class="w-full bg-cyan-400/10 hover:bg-cyan-400/20 border border-cyan-400/20 hover:border-cyan-400/40 text-cyan-400 text-sm font-semibold py-2 rounded-lg transition-all duration-200 flex items-center justify-center gap-2">
+              <span class="text-base leading-none">+</span> Adicionar ao carrinho
+            </button>
+          </div>
+        </div>
+
+        <!-- Related 3: i9-14900K -->
+        <div class="group bg-[#111827] border border-[#1e293b] rounded-xl overflow-hidden hover:border-cyan-400/30 transition-all duration-200">
+          <div class="relative" style="height: 160px; background: linear-gradient(135deg, #0d111a 0%, #131d2e 100%);">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <svg class="w-16 h-16 text-cyan-400/25" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <rect x="4" y="4" width="16" height="16" rx="2" stroke-width="1.5"/>
+                <rect x="7" y="7" width="10" height="10" rx="1" stroke-width="1.5"/>
+                <path stroke-linecap="round" stroke-width="1.5" d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/>
+              </svg>
+            </div>
+          </div>
+          <div class="p-4">
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-cyan-400 mb-1">CPU</p>
+            <a href="product.html" class="text-sm font-semibold text-white hover:text-cyan-400 transition-colors leading-snug block mb-2">i9-14900K</a>
+            <div class="flex items-center gap-1 mb-3">
+              <span class="text-yellow-400 text-xs">★★★★★</span>
+              <span class="text-xs text-slate-500 ml-1">(63)</span>
+            </div>
+            <div class="flex items-baseline gap-2 mb-3">
+              <span class="text-lg font-black text-cyan-400">R$ 2.199</span>
+            </div>
+            <button onclick="showToast('i9-14900K adicionado ao carrinho ✓')"
+                    class="w-full bg-cyan-400/10 hover:bg-cyan-400/20 border border-cyan-400/20 hover:border-cyan-400/40 text-cyan-400 text-sm font-semibold py-2 rounded-lg transition-all duration-200 flex items-center justify-center gap-2">
+              <span class="text-base leading-none">+</span> Adicionar ao carrinho
+            </button>
+          </div>
+        </div>
+
+        <!-- Related 4: HyperX DDR5 64GB -->
+        <div class="group bg-[#111827] border border-[#1e293b] rounded-xl overflow-hidden hover:border-cyan-400/30 transition-all duration-200">
+          <div class="relative" style="height: 160px; background: linear-gradient(135deg, #0d111a 0%, #131d2e 100%);">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <svg class="w-16 h-16 text-cyan-400/25" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <rect x="2" y="8" width="20" height="8" rx="1" stroke-width="1.5"/>
+                <path stroke-linecap="round" stroke-width="1.5" d="M6 8V6M10 8V6M14 8V6M18 8V6M6 16v2M10 16v2M14 16v2M18 16v2"/>
+              </svg>
+            </div>
+          </div>
+          <div class="p-4">
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-cyan-400 mb-1">RAM</p>
+            <a href="product.html" class="text-sm font-semibold text-white hover:text-cyan-400 transition-colors leading-snug block mb-2">HyperX DDR5 64GB</a>
+            <div class="flex items-center gap-1 mb-3">
+              <span class="text-yellow-400 text-xs">★★★★</span><span class="text-slate-600 text-xs">★</span>
+              <span class="text-xs text-slate-500 ml-1">(42)</span>
+            </div>
+            <div class="flex items-baseline gap-2 mb-3">
+              <span class="text-lg font-black text-cyan-400">R$ 899</span>
+            </div>
+            <button onclick="showToast('HyperX DDR5 64GB adicionada ao carrinho ✓')"
+                    class="w-full bg-cyan-400/10 hover:bg-cyan-400/20 border border-cyan-400/20 hover:border-cyan-400/40 text-cyan-400 text-sm font-semibold py-2 rounded-lg transition-all duration-200 flex items-center justify-center gap-2">
+              <span class="text-base leading-none">+</span> Adicionar ao carrinho
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="border-t border-[#1e293b] py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+
+        <!-- Logo -->
+        <a href="index.html" class="font-black text-lg tracking-tight">
+          <span class="text-white">Nova</span><span class="text-cyan-400">Mart</span>
+        </a>
+
+        <!-- Nav links -->
+        <nav class="flex items-center gap-6">
+          <a href="#" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Termos</a>
+          <a href="#" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Privacidade</a>
+          <a href="#" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Suporte</a>
+        </nav>
+
+        <!-- Copyright -->
+        <p class="text-xs text-slate-600">&copy; 2026 NovaMart. Todos os direitos reservados.</p>
+
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       TOAST NOTIFICATION
+  ============================================================ -->
+  <div id="toast"
+       class="hidden fixed bottom-5 right-5 z-[100] animate-fade-up bg-[#111827] border border-[#22d3ee33] rounded-xl px-5 py-3 shadow-2xl flex items-center gap-3 max-w-xs">
+    <span class="animate-blink w-2 h-2 rounded-full bg-cyan-400 flex-shrink-0"></span>
+    <span id="toastMsg" class="text-sm text-slate-100 font-medium">Adicionado ao carrinho ✓</span>
+  </div>
+
+  <!-- ============================================================
+       INLINE SCRIPTS
+  ============================================================ -->
+  <script>
+    function addToCart() {
+      showToast('RTX 4080 Super adicionado ao carrinho ✓');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      t.classList.remove('hidden');
+      setTimeout(() => t.classList.add('hidden'), 3000);
+    }
+
+    function toggleMobileMenu() {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    }
+  </script>
+
+</body>
+</html>

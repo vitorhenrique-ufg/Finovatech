@@ -1,0 +1,14 @@
+@inject NavigationManager Nav
+
+@code {
+    protected override void OnInitialized()
+    {
+        string caminho = Nav.ToBaseRelativePath(Nav.Uri);
+
+        if (caminho.StartsWith("auth", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        string pathSemQuery = caminho.Split('?')[0];
+        Nav.NavigateTo($"/auth?returnUrl={Uri.EscapeDataString(pathSemQuery)}", forceLoad: false);
+    }
+}

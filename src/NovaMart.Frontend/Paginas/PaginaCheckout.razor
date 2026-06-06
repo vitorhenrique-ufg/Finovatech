@@ -1,0 +1,206 @@
+@page "/checkout"
+@attribute [Authorize]
+@using System.Net.Http.Headers
+@using System.Security.Claims
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components.Authorization
+@using NovaMart.Frontend.Modelos
+@using NovaMart.Frontend.Servicos
+@using NovaMart.Frontend.Components
+@inject IServicoCarrinho Carrinho
+@inject NavigationManager Nav
+@inject IHttpClientFactory HttpClientFactory
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>Checkout — NovaMart</PageTitle>
+
+<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200">
+    <div class="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <a href="/" class="font-black text-lg"><span class="text-slate-900">Nova</span><span class="text-cyan-600">Mart</span></a>
+            <a href="/catalog" class="flex items-center gap-1.5 text-xs text-slate-500 hover:text-cyan-600 transition-colors">
+                <i class="fa-solid fa-arrow-left text-[10px]"></i>
+                Voltar ao catálogo
+            </a>
+        </div>
+        <span class="text-xs text-green-600 font-medium"><i class="fa-solid fa-lock mr-1.5"></i> Checkout seguro</span>
+    </div>
+</nav>
+
+<div class="max-w-3xl mx-auto px-4 py-10">
+    <IndicadorEtapas EtapaAtual="_etapa" />
+
+    @if (!string.IsNullOrEmpty(_erro))
+    {
+        <div class="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl mb-6">
+            <i class="fa-solid fa-circle-exclamation flex-shrink-0"></i>
+            <span>@_erro</span>
+        </div>
+    }
+
+    @if (_etapa == 1)
+    {
+        <h2 class="text-xl font-bold text-slate-900 mb-6">Endereço de entrega</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2"><label class="label-c">Nome completo</label><input @bind="_nome" class="input-c" /></div>
+            <div><label class="label-c">CPF</label><input @bind="_cpf" class="input-c" /></div>
+            <div><label class="label-c">CEP</label><input @bind="_cep" class="input-c" /></div>
+            <div class="sm:col-span-2"><label class="label-c">Rua</label><input @bind="_rua" class="input-c" /></div>
+            <div><label class="label-c">Número</label><input @bind="_numero" class="input-c" /></div>
+            <div><label class="label-c">Cidade</label><input @bind="_cidade" class="input-c" /></div>
+        </div>
+        <div class="flex justify-end mt-8">
+            <button @onclick="() => _etapa = 2" class="bg-cyan-500 text-white font-bold px-6 py-3 rounded-lg hover:bg-cyan-400 transition-colors">
+                Continuar <i class="fa-solid fa-arrow-right ml-1.5"></i>
+            </button>
+        </div>
+    }
+    else if (_etapa == 2)
+    {
+        <h2 class="text-xl font-bold text-slate-900 mb-6">Dados de pagamento</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2"><label class="label-c">Número do cartão</label><input @bind="_cartao" class="input-c" placeholder="0000 0000 0000 0000" /></div>
+            <div><label class="label-c">Validade</label><input @bind="_validade" class="input-c" placeholder="MM/AA" /></div>
+            <div><label class="label-c">CVV</label><input @bind="_cvv" class="input-c" placeholder="•••" /></div>
+            <div class="sm:col-span-2"><label class="label-c">Nome no cartão</label><input @bind="_nomeCartao" class="input-c" /></div>
+        </div>
+        <div class="flex justify-between mt-8">
+            <button @onclick="() => _etapa = 1" class="border border-slate-300 text-slate-600 px-6 py-3 rounded-lg hover:border-slate-400 transition-colors">
+                <i class="fa-solid fa-arrow-left mr-1.5"></i> Voltar
+            </button>
+            <button @onclick="() => _etapa = 3" class="bg-cyan-500 text-white font-bold px-6 py-3 rounded-lg hover:bg-cyan-400 transition-colors">
+                Continuar <i class="fa-solid fa-arrow-right ml-1.5"></i>
+            </button>
+        </div>
+    }
+    else
+    {
+        <h2 class="text-xl font-bold text-slate-900 mb-6">Confirmar pedido</h2>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-5">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Itens do pedido</p>
+            @foreach (ItemCarrinhoViewModel item in Carrinho.Itens)
+            {
+                <div class="flex justify-between text-sm mb-2 text-slate-700">
+                    <span>@item.Nome × @item.Quantidade</span>
+                    <span class="font-semibold text-slate-900">R$ @item.Total.ToString("N2")</span>
+                </div>
+            }
+            <div class="border-t border-slate-200 mt-4 pt-4 flex justify-between">
+                <span class="font-bold text-slate-900">Total</span>
+                <span class="text-2xl font-black text-cyan-600">R$ @Carrinho.TotalComDesconto.ToString("N2")</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Endereço</p>
+                <p class="text-sm text-slate-700">@_nome</p>
+                <p class="text-sm text-slate-700">@_rua, @_numero</p>
+                <p class="text-sm text-slate-700">@_cidade — CEP @_cep</p>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Pagamento</p>
+                <p class="text-sm text-slate-700">**** **** **** @(_cartao.Length >= 4 ? _cartao[^4..] : "****")</p>
+                <p class="text-sm text-slate-700">@_nomeCartao</p>
+            </div>
+        </div>
+
+        <div class="flex justify-between">
+            <button @onclick="() => { _etapa = 2; _erro = string.Empty; }"
+                class="border border-slate-300 text-slate-600 px-6 py-3 rounded-lg hover:border-slate-400 transition-colors">
+                <i class="fa-solid fa-arrow-left mr-1.5"></i> Voltar
+            </button>
+            <button @onclick="ConfirmePedidoAsync" disabled="@_enviando"
+                class="bg-cyan-500 text-white font-bold px-6 py-3 rounded-lg disabled:opacity-60 hover:bg-cyan-400 transition-colors flex items-center gap-2">
+                @if (_enviando)
+                {
+                    <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Processando...</span>
+                }
+                else
+                {
+                    <i class="fa-solid fa-check"></i>
+                    <span>Confirmar pedido</span>
+                }
+            </button>
+        </div>
+
+        <p class="text-xs text-slate-400 mt-4 text-center">
+            <i class="fa-solid fa-shield-halved mr-1"></i>
+            Chave de idempotência: @_chaveIdempotencia
+        </p>
+    }
+</div>
+
+<style>
+    .label-c { display: block; font-size: .75rem; font-weight: 600; color: rgb(100 116 139); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .375rem; }
+    .input-c  { display: block; width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: .375rem; padding: .625rem .875rem; color: #0f172a; font-size: .875rem; outline: none; }
+    .input-c:focus { border-color: rgba(6,182,212,.5); }
+</style>
+
+@code {
+    private int    _etapa = 1;
+    private bool   _enviando;
+    private string _erro  = string.Empty;
+    private readonly Guid _chaveIdempotencia = Guid.NewGuid();
+
+    private string _nome = string.Empty, _cpf = string.Empty, _cep = string.Empty;
+    private string _rua  = string.Empty, _numero = string.Empty, _cidade = string.Empty;
+    private string _cartao = string.Empty, _validade = string.Empty;
+    private string _cvv = string.Empty, _nomeCartao = string.Empty;
+
+    private async Task ConfirmePedidoAsync()
+    {
+        _erro = string.Empty;
+        _enviando = true;
+        StateHasChanged();
+
+        try
+        {
+            AuthenticationState authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            string? token = authState.User.FindFirst("access_token")?.Value;
+
+            HttpClient client = HttpClientFactory.CreateClient("gateway");
+
+            HttpRequestMessage req = new(HttpMethod.Post, "/payments");
+            req.Headers.Add("Idempotency-Key", _chaveIdempotencia.ToString());
+
+            if (!string.IsNullOrEmpty(token))
+                req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            req.Content = JsonContent.Create(new
+            {
+                moedaOrigem       = "BRL",
+                moedaDestino      = "USD",
+                valor             = Carrinho.TotalComDesconto,
+                parceiroOrigemId  = "novamart",
+                parceiroDestinoId = "finovatech"
+            });
+
+            HttpResponseMessage resp = await client.SendAsync(req);
+
+            if (resp.IsSuccessStatusCode)
+            {
+                string json = await resp.Content.ReadAsStringAsync();
+                using JsonDocument doc = JsonDocument.Parse(json);
+                Guid id = doc.RootElement.GetProperty("pagamentoId").GetGuid();
+                Carrinho.LimpeCarrinho();
+                Nav.NavigateTo($"/order/{id}");
+            }
+            else
+            {
+                string body = await resp.Content.ReadAsStringAsync();
+                _erro = $"Erro ao processar pedido ({(int)resp.StatusCode}). Tente novamente.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _erro = $"Erro de conexão: {ex.Message}";
+        }
+        finally
+        {
+            _enviando = false;
+        }
+    }
+}

@@ -1,0 +1,165 @@
+@page "/catalog"
+@attribute [Authorize]
+@using NovaMart.Frontend.Modelos
+@using NovaMart.Frontend.Servicos
+@using NovaMart.Frontend.Components
+@inject IServicoCatalogo CatalogoSvc
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<PageTitle>Catálogo — NovaMart</PageTitle>
+
+<NovaMart.Frontend.Compartilhados.NavBar />
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold text-slate-900 mb-6">Catálogo
+        @if (_produtos is not null)
+        {
+            <span class="text-slate-500 font-normal text-lg ml-2">(@_produtos.Count produtos)</span>
+        }
+    </h1>
+    <div class="flex gap-8">
+        <aside class="hidden lg:block w-60 flex-shrink-0">
+            <div class="bg-white border border-slate-200 rounded-xl p-5 sticky top-20">
+                <h2 class="text-xs font-bold tracking-widest text-cyan-600 uppercase mb-5"><i class="fa-solid fa-sliders mr-1.5 text-cyan-600"></i>Filtros</h2>
+                <div class="mb-5">
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Categoria</p>
+                    <label class="flex items-center gap-2.5 cursor-pointer mb-2">
+                        <input type="radio" name="cat" value="" checked="@(_categoria == null)" @onchange="() => FiltreAsync(null)" class="accent-cyan-500" />
+                        <span class="text-sm text-slate-700">Todos</span>
+                    </label>
+                    @foreach (string cat in _categorias)
+                    {
+                        string c = cat;
+                        <label class="flex items-center gap-2.5 cursor-pointer mb-2">
+                            <input type="radio" name="cat" value="@cat" checked="@(_categoria == cat)" @onchange="() => FiltreAsync(c)" class="accent-cyan-500" />
+                            <span class="text-sm text-slate-700">@cat</span>
+                        </label>
+                    }
+                </div>
+                <div>
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Busca</p>
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                        <input type="text" @oninput="OnBuscaInput" placeholder="Buscar produto..."
+                            class="w-full bg-slate-50 border border-slate-300 rounded-lg pl-8 pr-3 py-2 text-sm text-slate-700 outline-none focus:border-cyan-500/40" />
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <main class="flex-1">
+            @if (_produtos is null)
+            {
+                <div class="flex items-center justify-center h-64 gap-3 text-slate-500">
+                    <div class="w-5 h-5 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+                    <span class="text-sm">Carregando...</span>
+                </div>
+            }
+            else if (_produtos.Count == 0)
+            {
+                <div class="flex flex-col items-center py-24 text-center">
+                    <i class="fa-solid fa-magnifying-glass text-4xl mb-4 text-slate-300"></i>
+                    <h3 class="text-lg font-bold text-slate-600 mb-2">Nenhum produto encontrado</h3>
+                    <button @onclick="LimpeAsync" class="mt-4 bg-cyan-500 text-white font-bold px-5 py-2 rounded-lg">Limpar filtros</button>
+                </div>
+            }
+            else
+            {
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                    @foreach (ProdutoViewModel p in _produtosVisiveis)
+                    {
+                        <CartaoProduto Produto="p" />
+                    }
+                </div>
+
+                @if (_carregandoMais)
+                {
+                    <div class="flex items-center justify-center py-8 gap-3 text-slate-500">
+                        <div class="w-5 h-5 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+                        <span class="text-sm">Carregando mais produtos...</span>
+                    </div>
+                }
+                else if (_produtosVisiveis.Count < _produtos.Count)
+                {
+                    <div id="scroll-sentinel" class="h-4 w-full"></div>
+                }
+                else if (_produtos.Count > _pageSize)
+                {
+                    <p class="text-center text-xs text-slate-400 py-6">Todos os @_produtos.Count produtos exibidos</p>
+                }
+            }
+        </main>
+    </div>
+</div>
+
+@code {
+    private IReadOnlyList<ProdutoViewModel>? _produtos;
+    private List<ProdutoViewModel> _produtosVisiveis = [];
+    private IReadOnlyList<string> _categorias = [];
+    private string? _categoria;
+    private string? _busca;
+    private bool _carregandoMais;
+    private bool _jsDisponivel;
+    private const int _pageSize = 6;
+    private DotNetObjectReference<PaginaCatalogo>? _dotnetRef;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _categorias = await CatalogoSvc.ListeCategoriasAsync();
+        _produtos = await CatalogoSvc.ListeProdutosAsync(categoria: _categoria, busca: _busca);
+        _produtosVisiveis = [.. _produtos.Take(_pageSize)];
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            _jsDisponivel = true;
+
+        if (_jsDisponivel)
+        {
+            _dotnetRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("infiniteScroll.initialize", "scroll-sentinel", _dotnetRef, nameof(CarregueMaisAsync));
+        }
+    }
+
+    [JSInvokable]
+    public async Task CarregueMaisAsync()
+    {
+        if (_carregandoMais || _produtos is null) return;
+        if (_produtosVisiveis.Count >= _produtos.Count) return;
+
+        _carregandoMais = true;
+        StateHasChanged();
+
+        await Task.Delay(300);
+
+        int inicio = _produtosVisiveis.Count;
+        int fim = Math.Min(inicio + _pageSize, _produtos.Count);
+        _produtosVisiveis.AddRange(_produtos.Skip(inicio).Take(fim - inicio));
+
+        _carregandoMais = false;
+        StateHasChanged();
+    }
+
+    private async Task FiltreAsync(string? cat) { _categoria = cat; await CarregueAsync(); }
+
+    private async Task OnBuscaInput(ChangeEventArgs e) { _busca = e.Value?.ToString(); await CarregueAsync(); }
+
+    private async Task LimpeAsync() { _categoria = null; _busca = null; await CarregueAsync(); }
+
+    private async Task CarregueAsync()
+    {
+        _produtos = await CatalogoSvc.ListeProdutosAsync(categoria: _categoria, busca: _busca);
+        _produtosVisiveis = [.. _produtos.Take(_pageSize)];
+
+        if (_jsDisponivel)
+            await JS.InvokeVoidAsync("infiniteScroll.dispose");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_jsDisponivel)
+            await JS.InvokeVoidAsync("infiniteScroll.dispose");
+        _dotnetRef?.Dispose();
+    }
+}

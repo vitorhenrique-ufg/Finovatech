@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Finovatech.Contratos.Testes/Finovatech.Contratos.Testes.csproj" />
+    <Project Path="src/Finovatech.DeteccaoFraude.Testes/Finovatech.DeteccaoFraude.Testes.csproj" />
+    <Project Path="src/Finovatech.GatewayApi.Testes/Finovatech.GatewayApi.Testes.csproj" />
+    <Project Path="src/Finovatech.GatewayPagamento.Testes/Finovatech.GatewayPagamento.Testes.csproj" />
+    <Project Path="src/Finovatech.ProcessadorPagamento.Testes/Finovatech.ProcessadorPagamento.Testes.csproj" />
+    <Project Path="src/Finovatech.ServicoCatalogo.Testes/Finovatech.ServicoCatalogo.Testes.csproj" />
+    <Project Path="src/Finovatech.ServicoNotificacao.Testes/Finovatech.ServicoNotificacao.Testes.csproj" />
+    <Project Path="src/NovaMart.Frontend.Testes/NovaMart.Frontend.Testes.csproj" />
+  </Folder>
+</Solution>

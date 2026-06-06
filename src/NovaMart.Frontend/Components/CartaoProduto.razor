@@ -1,0 +1,50 @@
+@using NovaMart.Frontend.Modelos
+@using NovaMart.Frontend.Servicos
+@inject IServicoCarrinho Carrinho
+@inject IServicoToast Toast
+
+<div class="group bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-cyan-300/50 transition-colors">
+    <a href="/product/@Produto.Id">
+        <div class="h-44 bg-gradient-to-br from-slate-100 to-slate-200 relative overflow-hidden">
+            @if (!string.IsNullOrEmpty(Produto.ImagemUrl))
+            {
+                <img src="@Produto.ImagemUrl" alt="@Produto.Nome"
+                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                     loading="lazy" />
+            }
+            else
+            {
+                <div class="w-full h-full flex items-center justify-center">
+                    <div class="w-20 h-12 border border-cyan-200 bg-cyan-50 rounded-md"></div>
+                </div>
+            }
+            @if (Produto.PrecoOriginal.HasValue)
+            {
+                <span class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded z-10">
+                    -@((int)((1m - Produto.Preco / Produto.PrecoOriginal.Value) * 100))%
+                </span>
+            }
+        </div>
+    </a>
+    <div class="p-4">
+        <p class="text-[10px] font-bold tracking-widest text-cyan-600 uppercase mb-1">@Produto.Categoria</p>
+        <a href="/product/@Produto.Id"><h3 class="text-sm font-semibold text-slate-800 mb-2 leading-tight hover:text-slate-900">@Produto.Nome</h3></a>
+        <div class="flex items-baseline gap-2 mb-3">
+            <span class="text-lg font-black text-slate-900">R$ @Produto.Preco.ToString("N2")</span>
+            @if (Produto.PrecoOriginal.HasValue) { <span class="text-xs text-slate-400 line-through">R$ @Produto.PrecoOriginal.Value.ToString("N2")</span> }
+        </div>
+        <button @onclick="AdicioneAoCarrinho" class="w-full bg-cyan-500 text-white text-xs font-bold py-2.5 rounded-lg hover:bg-cyan-400 transition-colors">
+            <i class="fa-solid fa-cart-plus mr-1.5"></i> Adicionar ao carrinho
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required ProdutoViewModel Produto { get; set; }
+
+    private async Task AdicioneAoCarrinho()
+    {
+        Carrinho.AdicioneItem(Produto);
+        await Toast.MostreAsync($"{Produto.Nome} adicionado ao carrinho", "fa-solid fa-cart-shopping");
+    }
+}

@@ -1,0 +1,186 @@
+### FinovaTech — Cenários de Teste
+### Base URL: http://localhost:8000
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+
+### 1. Login (obter JWT)
+# POST /auth/login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "user@novamart.com",
+  "senha": "novamart123"
+}
+
+### (Copie o accessToken da resposta acima e cole abaixo)
+@token = COLE_SEU_TOKEN_AQUI
+@idempotencyKey = {{$guid}}
+
+### 2. Fluxo feliz — pagamento aprovado
+# Valor abaixo do limite (R$50.000) com moeda permitida
+POST {{baseUrl}}/payments
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+Idempotency-Key: {{idempotencyKey}}
+
+{
+  "moedaOrigem": "USD",
+  "moedaDestino": "BRL",
+  "valor": 1500.00,
+  "parceiroOrigemId": "parceiro-usa-1",
+  "parceiroDestinoId": "parceiro-br-1"
+}
+
+### 3. Pagamento rejeitado por fraude (valor acima do limite)
+@idempotencyKeyFraude = {{$guid}}
+
+POST {{baseUrl}}/payments
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+Idempotency-Key: {{idempotencyKeyFraude}}
+
+{
+  "moedaOrigem": "USD",
+  "moedaDestino": "BRL",
+  "valor": 99000.00,
+  "parceiroOrigemId": "parceiro-usa-1",
+  "parceiroDestinoId": "parceiro-br-1"
+}
+
+### 4. Requisição duplicada (mesmo Idempotency-Key do cenário 2)
+# Deve retornar a mesma resposta sem reprocessar
+POST {{baseUrl}}/payments
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+Idempotency-Key: {{idempotencyKey}}
+
+{
+  "moedaOrigem": "USD",
+  "moedaDestino": "BRL",
+  "valor": 1500.00,
+  "parceiroOrigemId": "parceiro-usa-1",
+  "parceiroDestinoId": "parceiro-br-1"
+}
+
+### 5. Payload inválido (sem campos obrigatórios)
+@idempotencyKeyInvalido = {{$guid}}
+
+POST {{baseUrl}}/payments
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+Idempotency-Key: {{idempotencyKeyInvalido}}
+
+{
+  "moedaOrigem": "USD"
+}
+
+### 6. Acesso sem token (deve retornar 401)
+POST {{baseUrl}}/payments
+Content-Type: {{contentType}}
+Idempotency-Key: {{$guid}}
+
+{
+  "moedaOrigem": "USD",
+  "moedaDestino": "BRL",
+  "valor": 100.00,
+  "parceiroOrigemId": "p1",
+  "parceiroDestinoId": "p2"
+}
+
+### 7. Consultar status de pagamento
+# Substitua {id} pelo pagamentoId retornado no cenário 2
+GET {{baseUrl}}/payments/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{token}}
+
+### 8. Listar produtos do catálogo (público)
+GET {{baseUrl}}/catalog/products
+
+### 9. Filtrar por categoria
+GET {{baseUrl}}/catalog/products?category=GPUs
+
+### 10. Buscar produto por texto
+GET {{baseUrl}}/catalog/products?search=RTX
+
+### 11. Listar categorias disponíveis
+GET {{baseUrl}}/catalog/categories
+
+### 12. Health checks de todos os serviços
+GET {{baseUrl}}/health
+
+### 13. Simulação de falha do fraud-detection — Circuit Breaker
+# Para testar o Circuit Breaker do ProcessadorPagamento:
+#
+# Passo 1: Pare o container DeteccaoFraude:
+#   docker stop finovatech-deteccao-fraude
+#
+# Passo 2: Envie múltiplos pagamentos (mínimo 5 para atingir o limiar):
+# O ProcessadorPagamento tentará publicar PagamentoEnviadoParaAnalise,
+# mas como DeteccaoFraude está offline, as mensagens vão para a DLQ.
+# Após 5 falhas em 30s, o Circuit Breaker abrirá.
+#
+# Passo 3: Verifique no Grafana (http://localhost:3000):
+#   Dashboard: FinovaTech — Circuit Breaker e Resiliência
+#   Painel "Circuit Breaker — DeteccaoFraude" deve mostrar estado "Aberto"
+#
+# Passo 4: Reinicie o DeteccaoFraude:
+#   docker start finovatech-deteccao-fraude
+# O Circuit Breaker entrará em Half-Open e fechará após sucesso.
+
+@idempotencyCB1 = {{$guid}}
+POST {{baseUrl}}/payments
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+Idempotency-Key: {{idempotencyCB1}}
+
+{
+  "moedaOrigem": "USD",
+  "moedaDestino": "BRL",
+  "valor": 500.00,
+  "parceiroOrigemId": "parceiro-cb-test",
+  "parceiroDestinoId": "parceiro-br-1"
+}
+
+###
+@idempotencyCB2 = {{$guid}}
+POST {{baseUrl}}/payments
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+Idempotency-Key: {{idempotencyCB2}}
+
+{
+  "moedaOrigem": "USD",
+  "moedaDestino": "BRL",
+  "valor": 501.00,
+  "parceiroOrigemId": "parceiro-cb-test",
+  "parceiroDestinoId": "parceiro-br-1"
+}
+
+###
+@idempotencyCB3 = {{$guid}}
+POST {{baseUrl}}/payments
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+Idempotency-Key: {{idempotencyCB3}}
+
+{
+  "moedaOrigem": "USD",
+  "moedaDestino": "BRL",
+  "valor": 502.00,
+  "parceiroOrigemId": "parceiro-cb-test",
+  "parceiroDestinoId": "parceiro-br-1"
+}
+
+### 14. Verificar filas RabbitMQ e DLQ (requer autenticação RabbitMQ Management)
+# Acesse: http://localhost:15672 (finovatech / finovatech123)
+# Verifique as filas:
+#   pagamento.iniciado              — mensagens aguardando processamento
+#   pagamento.enviado-para-analise — mensagens para DeteccaoFraude
+#   pagamento.aprovado             — pagamentos aprovados aguardando notificação
+#   pagamento.rejeitado            — pagamentos rejeitados aguardando notificação
+# DLQs (aparecem após falhas com retry esgotado):
+#   pagamento.iniciado_error
+#   pagamento.enviado-para-analise_error
+GET http://finovatech:finovatech123@localhost:15672/api/queues
+Accept: application/json

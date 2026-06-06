@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entrar — NovaMart</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="shared.css">
+</head>
+<body class="bg-[#09090b] text-slate-100 min-h-screen flex items-center justify-center px-4">
+
+  <!-- Background glow -->
+  <div class="fixed inset-0 glow-cyan pointer-events-none"></div>
+
+  <!-- Centered content -->
+  <div class="relative z-10 w-full max-w-sm">
+
+    <!-- Logo section -->
+    <div class="text-center mb-8">
+      <a href="index.html" class="font-black text-2xl inline-block">
+        <span class="text-white">Nova</span><span class="text-cyan-400">Mart</span>
+      </a>
+      <p class="text-slate-500 text-sm mt-1">Hardware premium com pagamento seguro</p>
+    </div>
+
+    <!-- Auth card -->
+    <div class="bg-[#111827] border border-[#1e293b] rounded-2xl p-8">
+
+      <!-- Tabs -->
+      <div class="flex border-b border-[#1e293b] mb-6">
+        <button id="tabLogin" onclick="showTab('login')"
+          class="flex-1 pb-3 text-sm font-semibold text-cyan-400 border-b-2 border-cyan-400 -mb-px transition-colors">
+          Entrar
+        </button>
+        <button id="tabRegister" onclick="showTab('register')"
+          class="flex-1 pb-3 text-sm font-semibold text-slate-500 border-b-2 border-transparent -mb-px hover:text-slate-300 transition-colors">
+          Criar conta
+        </button>
+      </div>
+
+      <!-- Login form (visible by default) -->
+      <form id="formLogin" onsubmit="return false;" class="flex flex-col gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Email</label>
+          <input type="email" class="input-base" placeholder="voce@email.com" value="joao@email.com">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Senha</label>
+          <input type="password" class="input-base" placeholder="••••••••" value="12345678">
+        </div>
+        <div class="flex justify-end">
+          <a href="#" class="text-xs text-cyan-400 hover:text-cyan-300">Esqueci a senha</a>
+        </div>
+        <a href="index.html" class="btn-primary w-full justify-center mt-1">Entrar</a>
+        <p class="text-center text-xs text-slate-500">Ao entrar, você será redirecionado para continuar sua compra.</p>
+      </form>
+
+      <!-- Register form (hidden by default) -->
+      <form id="formRegister" onsubmit="return false;" class="hidden flex flex-col gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Nome completo</label>
+          <input type="text" class="input-base" placeholder="João da Silva">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Email</label>
+          <input type="email" class="input-base" placeholder="voce@email.com">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Senha</label>
+          <input type="password" class="input-base" placeholder="Mínimo 8 caracteres">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Confirmar senha</label>
+          <input type="password" class="input-base" placeholder="••••••••">
+        </div>
+        <a href="index.html" class="btn-primary w-full justify-center mt-1">Criar conta</a>
+      </form>
+
+    </div>
+
+    <!-- Security note -->
+    <p class="text-center text-xs text-slate-600 mt-6">
+      🔒 JWT armazenado em cookie HttpOnly — nunca em localStorage
+    </p>
+
+  </div>
+
+  <!-- ============================================================
+       INLINE SCRIPTS
+  ============================================================ -->
+  <script>
+    function showTab(tab) {
+      const isLogin = tab === 'login';
+      document.getElementById('formLogin').classList.toggle('hidden', !isLogin);
+      document.getElementById('formRegister').classList.toggle('hidden', isLogin);
+
+      const activeClass = 'flex-1 pb-3 text-sm font-semibold text-cyan-400 border-b-2 border-cyan-400 -mb-px transition-colors';
+      const inactiveClass = 'flex-1 pb-3 text-sm font-semibold text-slate-500 border-b-2 border-transparent -mb-px hover:text-slate-300 transition-colors';
+
+      document.getElementById('tabLogin').className    = isLogin ? activeClass : inactiveClass;
+      document.getElementById('tabRegister').className = isLogin ? inactiveClass : activeClass;
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,11 @@
+# Arquivo principal do Docker Compose — usado pelo Visual Studio automaticamente.
+# Para CLI na raiz do projeto: docker compose up -d
+# Para CLI dentro de infra/:  cd infra && docker compose up -d
+#
+# O include carrega o compose real de infra/ preservando todos os contextos de build
+# e caminhos de volumes relativos à pasta infra/.
+
+name: finovatech-compose
+
+include:
+  - path: ./infra/docker-compose.yml

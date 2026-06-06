@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" fill="none">
+  <rect width="600" height="400" fill="#0f172a"/>
+  <!-- M.2 SSD stick -->
+  <rect x="100" y="160" width="400" height="80" rx="6" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+  <!-- M.2 connector -->
+  <rect x="100" y="185" width="30" height="30" rx="2" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+  <g fill="#f59e0b">
+    <rect x="104" y="188" width="3" height="24" rx="1"/>
+    <rect x="110" y="188" width="3" height="24" rx="1"/>
+    <rect x="116" y="188" width="3" height="24" rx="1"/>
+    <rect x="122" y="188" width="3" height="24" rx="1"/>
+  </g>
+  <!-- Controller chip -->
+  <rect x="160" y="172" width="70" height="56" rx="4" fill="#111827" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="195" y="202" text-anchor="middle" fill="#22d3ee" font-family="monospace" font-size="10" font-weight="bold">NAND</text>
+  <text x="195" y="216" text-anchor="middle" fill="#475569" font-family="monospace" font-size="8">CTRL</text>
+  <!-- NAND flash chips -->
+  <rect x="255" y="172" width="55" height="26" rx="3" fill="#111827" stroke="#334155" stroke-width="1"/>
+  <rect x="318" y="172" width="55" height="26" rx="3" fill="#111827" stroke="#334155" stroke-width="1"/>
+  <rect x="381" y="172" width="55" height="26" rx="3" fill="#111827" stroke="#334155" stroke-width="1"/>
+  <rect x="255" y="202" width="55" height="26" rx="3" fill="#111827" stroke="#334155" stroke-width="1"/>
+  <rect x="318" y="202" width="55" height="26" rx="3" fill="#111827" stroke="#334155" stroke-width="1"/>
+  <rect x="381" y="202" width="55" height="26" rx="3" fill="#111827" stroke="#334155" stroke-width="1"/>
+  <!-- Chip labels -->
+  <text x="282" y="188" text-anchor="middle" fill="#475569" font-family="monospace" font-size="7">NAND</text>
+  <text x="345" y="188" text-anchor="middle" fill="#475569" font-family="monospace" font-size="7">NAND</text>
+  <text x="408" y="188" text-anchor="middle" fill="#475569" font-family="monospace" font-size="7">NAND</text>
+  <text x="282" y="218" text-anchor="middle" fill="#475569" font-family="monospace" font-size="7">NAND</text>
+  <text x="345" y="218" text-anchor="middle" fill="#475569" font-family="monospace" font-size="7">NAND</text>
+  <text x="408" y="218" text-anchor="middle" fill="#475569" font-family="monospace" font-size="7">NAND</text>
+  <!-- PCIe 4.0 label -->
+  <text x="300" y="270" text-anchor="middle" fill="#22d3ee" font-family="monospace" font-size="13" font-weight="bold">PCIe 4.0 NVMe M.2</text>
+  <text x="300" y="290" text-anchor="middle" fill="#475569" font-family="monospace" font-size="10">7.450 MB/s</text>
+  <!-- Mounting hole -->
+  <circle cx="494" cy="200" r="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+</svg>

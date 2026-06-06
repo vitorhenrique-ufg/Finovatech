@@ -1,0 +1,17 @@
+<div class="flex items-center mb-10">
+    @for (int i = 1; i <= 3; i++)
+    {
+        int etapa = i;
+        string[] labels = ["Endereço", "Pagamento", "Confirmação"];
+        bool isDone = EtapaAtual > etapa; bool isActive = EtapaAtual == etapa;
+        <div class="flex flex-col items-center">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold @(isDone ? "bg-cyan-500 text-white" : isActive ? "border-2 border-cyan-500 bg-white text-cyan-600" : "border-2 border-slate-300 bg-white text-slate-400")">
+                @(isDone ? "✓" : etapa.ToString())
+            </div>
+            <span class="text-xs mt-1.5 @(isDone || isActive ? "text-cyan-600 font-semibold" : "text-slate-400")">@labels[etapa - 1]</span>
+        </div>
+        @if (etapa < 3) { <div class="flex-1 h-0.5 mx-2 @(EtapaAtual > etapa ? "bg-cyan-500" : "bg-slate-200")"></div> }
+    }
+</div>
+
+@code { [Parameter, EditorRequired] public required int EtapaAtual { get; set; } }

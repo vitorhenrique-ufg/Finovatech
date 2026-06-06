@@ -1,0 +1,148 @@
+@page "/orders"
+@attribute [Authorize]
+@using System.Net.Http.Headers
+@using System.Security.Claims
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager Nav
+@inject IHttpClientFactory HttpFactory
+@inject AuthenticationStateProvider AuthState
+
+<PageTitle>Meus Pedidos — NovaMart</PageTitle>
+
+<NovaMart.Frontend.Compartilhados.NavBar />
+
+<div class="max-w-5xl mx-auto px-4 py-10">
+    <h1 class="text-2xl font-bold text-slate-900 mb-8">Meus Pedidos</h1>
+
+    @if (_carregando)
+    {
+        <div class="flex items-center justify-center h-40 gap-3 text-slate-500">
+            <div class="w-5 h-5 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+            <span class="text-sm">Carregando pedidos...</span>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(_erro))
+    {
+        <div class="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl mb-6">
+            <i class="fa-solid fa-circle-exclamation flex-shrink-0"></i>
+            <span>@_erro</span>
+        </div>
+    }
+    else if (_pedidos.Count == 0)
+    {
+        <div class="flex flex-col items-center py-20 text-center">
+            <i class="fa-solid fa-box-open text-5xl text-slate-200 mb-4"></i>
+            <h3 class="text-lg font-bold text-slate-600 mb-2">Nenhum pedido encontrado</h3>
+            <p class="text-slate-400 text-sm mb-6">Você ainda não fez nenhum pedido.</p>
+            <a href="/catalog" class="bg-cyan-500 text-white font-bold px-5 py-2.5 rounded-lg hover:bg-cyan-400 transition-colors">
+                Explorar catálogo
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+            <table class="w-full text-sm">
+                <thead class="border-b border-slate-200">
+                    <tr>
+                        <th class="text-left px-5 py-3.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Pedido</th>
+                        <th class="text-left px-5 py-3.5 text-xs font-bold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Data</th>
+                        <th class="text-right px-5 py-3.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Valor</th>
+                        <th class="text-center px-5 py-3.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                        <th class="px-5 py-3.5"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (PedidoItem pedido in _pedidos)
+                    {
+                        <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors last:border-0">
+                            <td class="px-5 py-4 text-cyan-600 font-mono font-semibold text-xs">
+                                #NM-@pedido.Id.ToString()[..8].ToUpperInvariant()
+                            </td>
+                            <td class="px-5 py-4 text-slate-500 text-sm hidden sm:table-cell">
+                                @pedido.CriadoEm.ToLocalTime().ToString("dd/MM HH:mm")
+                            </td>
+                            <td class="px-5 py-4 text-slate-900 font-bold text-right">
+                                @(pedido.Valor > 0 ? $"R$ {pedido.Valor:N2}" : "—")
+                            </td>
+                            <td class="px-5 py-4 text-center">
+                                <span class="text-xs px-2.5 py-1 rounded-full font-semibold @BadgeCss(pedido.Situacao)">
+                                    @pedido.Situacao
+                                </span>
+                            </td>
+                            <td class="px-5 py-4 text-right">
+                                <a href="/order/@pedido.Id" class="text-xs text-cyan-600 hover:text-cyan-500 font-medium">
+                                    Ver <i class="fa-solid fa-arrow-right ml-1 text-xs"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private record PedidoItem(Guid Id, string Situacao, decimal Valor, DateTimeOffset CriadoEm);
+
+    private List<PedidoItem> _pedidos = [];
+    private bool   _carregando = true;
+    private string _erro       = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            AuthenticationState auth = await AuthState.GetAuthenticationStateAsync();
+            string? token = auth.User.FindFirst("access_token")?.Value;
+
+            HttpClient client = HttpFactory.CreateClient("gateway");
+            if (!string.IsNullOrEmpty(token))
+                client.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+
+            HttpResponseMessage resp = await client.GetAsync("/payments");
+
+            if (!resp.IsSuccessStatusCode)
+            {
+                _erro = $"Não foi possível carregar os pedidos ({(int)resp.StatusCode}).";
+                return;
+            }
+
+            string json = await resp.Content.ReadAsStringAsync();
+            using JsonDocument doc = JsonDocument.Parse(json);
+
+            List<PedidoItem> lista = [];
+            foreach (JsonElement item in doc.RootElement.EnumerateArray())
+            {
+                Guid id               = item.GetProperty("pagamentoId").GetGuid();
+                string situacao       = item.GetProperty("situacao").GetString() ?? "Pendente";
+                decimal valor         = item.TryGetProperty("valor", out JsonElement v) ? v.GetDecimal() : 0m;
+                DateTimeOffset criado = item.TryGetProperty("criadoEm", out JsonElement d)
+                    ? d.GetDateTimeOffset()
+                    : DateTimeOffset.UtcNow;
+                lista.Add(new PedidoItem(id, situacao, valor, criado));
+            }
+
+            _pedidos = lista;
+        }
+        catch (Exception ex)
+        {
+            _erro = $"Erro ao carregar pedidos: {ex.Message}";
+        }
+        finally
+        {
+            _carregando = false;
+        }
+    }
+
+    private static string BadgeCss(string situacao) => situacao switch
+    {
+        "Aprovado"   => "bg-green-50 text-green-700 border border-green-200",
+        "Rejeitado"  => "bg-red-50 text-red-600 border border-red-200",
+        "Notificado" => "bg-blue-50 text-blue-700 border border-blue-200",
+        _            => "bg-yellow-50 text-yellow-700 border border-yellow-200"
+    };
+}

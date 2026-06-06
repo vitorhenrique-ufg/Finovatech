@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: finovatech-config
+  namespace: finovatech
+data:
+  RabbitMQ__Host: "finovatech-rabbitmq"
+  RabbitMQ__Username: "finovatech"
+  ConnectionStrings__Redis: "finovatech-redis:6379"
+  OpenTelemetry__Endpoint: "http://finovatech-jaeger:4317"
+  ASPNETCORE_ENVIRONMENT: "Production"

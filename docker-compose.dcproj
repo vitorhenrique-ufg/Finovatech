@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" Sdk="Microsoft.Docker.Sdk">
+  <PropertyGroup Label="Globals">
+    <ProjectVersion>2.1</ProjectVersion>
+    <DockerTargetOS>Linux</DockerTargetOS>
+    <ProjectGuid>{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}</ProjectGuid>
+    <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
+    <DockerServiceUrl>http://localhost:5000</DockerServiceUrl>
+    <DockerServiceName>novamart-frontend</DockerServiceName>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="docker-compose.yml" />
+    <None Include="docker-compose.vs.debug.yml">
+      <DependentUpon>docker-compose.yml</DependentUpon>
+    </None>
+    <None Include="infra\docker-compose.yml">
+      <DependentUpon>docker-compose.yml</DependentUpon>
+    </None>
+    <None Include="infra\docker-compose.override.yml">
+      <DependentUpon>docker-compose.yml</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="src\Finovatech.GatewayApi\Finovatech.GatewayApi.csproj">
+      <DockerComposeServiceName>finovatech-gateway-api</DockerComposeServiceName>
+    </ProjectReference>
+    <ProjectReference Include="src\Finovatech.GatewayPagamento\Finovatech.GatewayPagamento.csproj">
+      <DockerComposeServiceName>finovatech-gateway-pagamento</DockerComposeServiceName>
+    </ProjectReference>
+    <ProjectReference Include="src\Finovatech.ProcessadorPagamento\Finovatech.ProcessadorPagamento.csproj">
+      <DockerComposeServiceName>finovatech-processador-pagamento</DockerComposeServiceName>
+    </ProjectReference>
+    <ProjectReference Include="src\Finovatech.DeteccaoFraude\Finovatech.DeteccaoFraude.csproj">
+      <DockerComposeServiceName>finovatech-deteccao-fraude</DockerComposeServiceName>
+    </ProjectReference>
+    <ProjectReference Include="src\Finovatech.ServicoNotificacao\Finovatech.ServicoNotificacao.csproj">
+      <DockerComposeServiceName>finovatech-servico-notificacao</DockerComposeServiceName>
+    </ProjectReference>
+    <ProjectReference Include="src\Finovatech.ServicoCatalogo\Finovatech.ServicoCatalogo.csproj">
+      <DockerComposeServiceName>finovatech-servico-catalogo</DockerComposeServiceName>
+    </ProjectReference>
+    <ProjectReference Include="src\NovaMart.Frontend\NovaMart.Frontend.csproj">
+      <DockerComposeServiceName>novamart-frontend</DockerComposeServiceName>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

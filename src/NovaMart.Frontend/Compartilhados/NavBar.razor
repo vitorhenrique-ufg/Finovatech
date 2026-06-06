@@ -1,0 +1,129 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@using NovaMart.Frontend.Servicos
+@inject IServicoCarrinho Carrinho
+@inject NavigationManager Nav
+@inject IServicoAssinaturaPush PushSvc
+@implements IDisposable
+
+<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+
+        <a href="/" class="flex items-center gap-2.5">
+            <img src="/logo.svg" alt="NovaMart" class="w-8 h-8 flex-shrink-0" />
+            <span class="font-black text-lg tracking-tight">
+                <span class="text-slate-900">Nova</span><span class="text-cyan-600">Mart</span>
+            </span>
+        </a>
+
+        <div class="flex items-center gap-2">
+            <AuthorizeView>
+                <Authorized Context="ctx">
+                    @{
+                        string nomeUsuario = ctx.User.Identity?.Name
+                            ?? ctx.User.FindFirst(ClaimTypes.Email)?.Value
+                            ?? "Usuário";
+                        string iniciais = ExtraiIniciais(nomeUsuario);
+                    }
+
+                    <BotaoNotificacao />
+
+                    <a href="/cart" title="Carrinho"
+                        class="relative flex items-center justify-center w-9 h-9 bg-white border border-slate-200 rounded-lg hover:border-cyan-300 transition-colors">
+                        <i class="fa-solid fa-cart-shopping text-slate-600 text-sm"></i>
+                        @if (Carrinho.TotalItens > 0)
+                        {
+                            <span class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-cyan-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                                @Carrinho.TotalItens
+                            </span>
+                        }
+                    </a>
+
+                    <a href="/orders" title="Meus Pedidos"
+                        class="flex items-center justify-center w-9 h-9 bg-white border border-slate-200 rounded-lg hover:border-cyan-300 transition-colors">
+                        <i class="fa-solid fa-box text-slate-600 text-sm"></i>
+                    </a>
+
+                    <div class="relative">
+                        <button @onclick="ToggleMenu"
+                            class="w-9 h-9 rounded-full bg-cyan-500 hover:bg-cyan-400 text-white text-xs font-black flex items-center justify-center transition-colors select-none cursor-pointer"
+                            title="@nomeUsuario">
+                            @iniciais
+                        </button>
+
+                        @if (_menuAberto)
+                        {
+                            <div class="fixed inset-0 z-40" @onclick="FecharMenu"></div>
+                            <div class="absolute right-0 top-11 w-56 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50">
+                                <div class="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-full bg-cyan-500 text-white text-xs font-black flex items-center justify-center flex-shrink-0">
+                                        @iniciais
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs text-slate-400 font-medium">Conectado como</p>
+                                        <p class="text-sm font-semibold text-slate-900 truncate">@nomeUsuario</p>
+                                    </div>
+                                </div>
+                                <div class="p-1.5">
+                                    <a href="/catalog" @onclick="FecharMenu"
+                                        class="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors">
+                                        <i class="fa-solid fa-layer-group text-slate-400 text-xs w-4 text-center"></i>
+                                        Catálogo
+                                    </a>
+                                    <a href="/orders" @onclick="FecharMenu"
+                                        class="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors">
+                                        <i class="fa-solid fa-box text-slate-400 text-xs w-4 text-center"></i>
+                                        Meus Pedidos
+                                    </a>
+                                    <a href="/cart" @onclick="FecharMenu"
+                                        class="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors">
+                                        <i class="fa-solid fa-cart-shopping text-slate-400 text-xs w-4 text-center"></i>
+                                        Carrinho
+                                        @if (Carrinho.TotalItens > 0)
+                                        {
+                                            <span class="ml-auto bg-cyan-100 text-cyan-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">@Carrinho.TotalItens</span>
+                                        }
+                                    </a>
+                                    <div class="border-t border-slate-100 mt-1 pt-1">
+                                        <a href="/auth/sair"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                            <i class="fa-solid fa-right-from-bracket text-xs w-4 text-center"></i>
+                                            Sair
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </Authorized>
+
+                <NotAuthorized>
+                    <a href="/auth"
+                        class="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:border-slate-300 px-3 py-1.5 rounded-lg transition-colors">
+                        <i class="fa-solid fa-right-to-bracket text-xs"></i>
+                        <span class="hidden sm:inline">Login</span>
+                    </a>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+    </div>
+</nav>
+
+@code {
+    private bool _menuAberto;
+
+    protected override void OnInitialized() => Carrinho.OnCarrinhoAlterado += OnChanged;
+    private void OnChanged(object? s, EventArgs e) => InvokeAsync(StateHasChanged);
+    public void Dispose() => Carrinho.OnCarrinhoAlterado -= OnChanged;
+
+    private void ToggleMenu() => _menuAberto = !_menuAberto;
+    private void FecharMenu() => _menuAberto = false;
+
+    private static string ExtraiIniciais(string nome)
+    {
+        if (string.IsNullOrWhiteSpace(nome)) return "U";
+        string[] partes = nome.Trim().Split(new[] { ' ', '@' }, StringSplitOptions.RemoveEmptyEntries);
+        if (partes.Length == 1) return partes[0][0].ToString().ToUpperInvariant();
+        return $"{partes[0][0]}{partes[^1][0]}".ToUpperInvariant();
+    }
+}

@@ -1,0 +1,280 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: Finovatech Alertas
+    folder: Alertas Finovatech
+    interval: 1m
+    rules:
+
+      # ── 1. Serviço indisponível ───────────────────────────────────────────────
+      - uid: finovatech-servico-down
+        title: "Serviço Indisponível"
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus-finovatech
+            model:
+              datasource:
+                type: prometheus
+                uid: prometheus-finovatech
+              expr: 'up == 0'
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [0]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              refId: B
+              type: threshold
+        noDataState: NoData
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: "Serviço {{ $labels.job }} está indisponível"
+          description: "O Prometheus não consegue coletar métricas de {{ $labels.job }} há mais de 1 minuto. Execute `docker ps` para verificar o container."
+        labels:
+          severidade: critica
+        isPaused: false
+
+      # ── 2. Dead Letter Queue com mensagens acumuladas ─────────────────────────
+      - uid: finovatech-dlq-mensagens
+        title: "Dead Letter Queue com Mensagens"
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus-finovatech
+            model:
+              datasource:
+                type: prometheus
+                uid: prometheus-finovatech
+              expr: 'rabbitmq_queue_messages{queue=~".*dlq"} > 0'
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [0]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              refId: B
+              type: threshold
+        noDataState: NoData
+        execErrState: Error
+        for: 2m
+        annotations:
+          summary: "DLQ {{ $labels.queue }} com {{ $value }} mensagem(ns)"
+          description: "Mensagens acumuladas na Dead Letter Queue indicam falha persistente no consumer. Inspecione via RabbitMQ Management em http://localhost:15672."
+        labels:
+          severidade: critica
+        isPaused: false
+
+      # ── 3. Taxa de erro HTTP acima de 10% ────────────────────────────────────
+      - uid: finovatech-erro-rate
+        title: "Taxa de Erro HTTP > 10%"
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus-finovatech
+            model:
+              datasource:
+                type: prometheus
+                uid: prometheus-finovatech
+              expr: |
+                sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[5m])) by (job)
+                /
+                sum(rate(http_server_request_duration_seconds_count[5m])) by (job)
+                > 0.10
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [0]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              refId: B
+              type: threshold
+        noDataState: NoData
+        execErrState: Error
+        for: 3m
+        annotations:
+          summary: "Taxa de erro em {{ $labels.job }} acima de 10%"
+          description: "{{ $labels.job }} está retornando mais de 10% de erros HTTP 5xx nos últimos 5 minutos. Verifique os logs com `docker logs {{ $labels.job }}`."
+        labels:
+          severidade: alta
+        isPaused: false
+
+      # ── 4. Latência p99 acima de 2 segundos ──────────────────────────────────
+      - uid: finovatech-latencia-alta
+        title: "Latência p99 > 2s"
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus-finovatech
+            model:
+              datasource:
+                type: prometheus
+                uid: prometheus-finovatech
+              expr: |
+                histogram_quantile(0.99,
+                  sum(rate(http_server_request_duration_seconds_bucket[5m])) by (job, le)
+                ) > 2
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [0]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              refId: B
+              type: threshold
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: "Latência p99 em {{ $labels.job }} acima de 2s"
+          description: "{{ $labels.job }} está com p99 de latência acima de 2 segundos. O Polly pode acionar o Circuit Breaker em breve."
+        labels:
+          severidade: alta
+        isPaused: false
+
+      # ── 5. Consumer MassTransit com falhas persistentes ───────────────────────
+      - uid: finovatech-consumer-fault
+        title: "Consumer MassTransit com Falhas"
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus-finovatech
+            model:
+              datasource:
+                type: prometheus
+                uid: prometheus-finovatech
+              expr: 'rate(masstransit_receive_fault_total[5m]) > 0'
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [0]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              refId: B
+              type: threshold
+        noDataState: NoData
+        execErrState: Error
+        for: 2m
+        annotations:
+          summary: "Consumer {{ $labels.service_name }} falhando"
+          description: "O MassTransit está registrando falhas ao processar mensagens em {{ $labels.service_name }}. Mensagens serão enviadas para a DLQ após as tentativas de retry."
+        labels:
+          severidade: alta
+        isPaused: false

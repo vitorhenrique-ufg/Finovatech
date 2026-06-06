@@ -1,0 +1,29 @@
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: Email FinovaTech
+    receivers:
+      - uid: email-finovatech
+        type: email
+        settings:
+          addresses: ${ALERT_EMAIL_TO}
+          subject: "[FinovaTech] {{ .Status | toUpper }} — {{ .GroupLabels.alertname }}"
+          message: |
+            {{ range .Alerts }}
+            Alerta:   {{ .Annotations.summary }}
+            Detalhes: {{ .Annotations.description }}
+            Serviço:  {{ index .Labels "job" }}
+            Severidade: {{ index .Labels "severidade" }}
+            {{ end }}
+        disableResolveMessage: false
+
+  # Canal secundário opcional — ative definindo DISCORD_WEBHOOK_URL
+  - orgId: 1
+    name: Discord FinovaTech
+    receivers:
+      - uid: discord-finovatech
+        type: discord
+        settings:
+          url: ${DISCORD_WEBHOOK_URL}
+        disableResolveMessage: false

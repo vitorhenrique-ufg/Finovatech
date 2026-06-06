@@ -1,0 +1,49 @@
+@page "/"
+@using NovaMart.Frontend.Modelos
+@using NovaMart.Frontend.Servicos
+@using NovaMart.Frontend.Components
+@inject IServicoCatalogo CatalogoSvc
+
+<PageTitle>NovaMart — Hardware Premium</PageTitle>
+
+<NovaMart.Frontend.Compartilhados.NavBar />
+
+<section class="relative min-h-[calc(100vh-56px)] flex items-center" style="background-color:#f8fafc;background-image:linear-gradient(rgba(0,0,0,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,0.04) 1px,transparent 1px);background-size:40px 40px;">
+    <div class="max-w-7xl mx-auto px-4 py-20 w-full flex flex-col lg:flex-row items-center gap-12">
+        <div class="flex-1">
+            <p class="text-xs font-bold tracking-[3px] text-cyan-600 uppercase mb-4">Hardware Premium · FinovaTech</p>
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-[1.1] mb-6">Hardware que<br><span class="text-cyan-600">não te limita.</span></h1>
+            <p class="text-slate-500 text-lg mb-8 max-w-md">GPUs, processadores e periféricos top de linha.</p>
+            <a href="/catalog" class="inline-flex items-center gap-2 bg-cyan-500 text-white font-bold rounded-lg px-5 py-3 hover:bg-cyan-400 transition-colors">Explorar catálogo <i class="fa-solid fa-arrow-right ml-2"></i></a>
+        </div>
+        <div class="flex-1 flex justify-center lg:justify-end">
+            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xl shadow-cyan-400/10 max-w-sm w-full">
+                <img src="https://picsum.photos/seed/rtx5090/400/300" alt="RTX 5090 Ti" class="w-full h-48 object-cover" />
+                <div class="p-4">
+                    <p class="text-[10px] font-bold tracking-widest text-cyan-600 uppercase mb-1">GPUs</p>
+                    <p class="text-sm font-semibold text-slate-900 mb-2">RTX 5090 — 32GB GDDR7</p>
+                    <p class="text-lg font-black text-slate-900">R$ 8.999,00</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@if (_produtos is not null && _produtos.Count > 0)
+{
+    <section class="py-16 max-w-7xl mx-auto px-4">
+        <div class="flex items-center gap-4 mb-10"><h2 class="text-xl font-bold text-slate-900">Em Destaque</h2><div class="flex-1 h-px bg-slate-200"></div><a href="/catalog" class="text-xs text-cyan-600">Ver todos →</a></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            @foreach (ProdutoViewModel p in _produtos) { <CartaoProduto Produto="p" /> }
+        </div>
+    </section>
+}
+
+@code {
+    private IReadOnlyList<ProdutoViewModel>? _produtos;
+    protected override async Task OnInitializedAsync()
+    {
+        IReadOnlyList<ProdutoViewModel> todos = await CatalogoSvc.ListeProdutosAsync();
+        _produtos = todos.Take(4).ToList().AsReadOnly();
+    }
+}

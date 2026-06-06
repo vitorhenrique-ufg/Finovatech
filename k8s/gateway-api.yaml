@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-api
+  namespace: finovatech
+  labels:
+    app: gateway-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: gateway-api
+  template:
+    metadata:
+      labels:
+        app: gateway-api
+    spec:
+      containers:
+        - name: gateway-api
+          image: finovatech/gateway-api:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: finovatech-config
+            - secretRef:
+                name: finovatech-secrets
+          env:
+            - name: Jwt__Emissor
+              value: "finovatech"
+            - name: Jwt__Audiencia
+              value: "novamart"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-api
+  namespace: finovatech
+spec:
+  selector:
+    app: gateway-api
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: LoadBalancer

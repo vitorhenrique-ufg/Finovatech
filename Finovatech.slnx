@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Finovatech.Contratos/Finovatech.Contratos.csproj" />
+    <Project Path="src/Finovatech.DeteccaoFraude/Finovatech.DeteccaoFraude.csproj" />
+    <Project Path="src/Finovatech.GatewayApi/Finovatech.GatewayApi.csproj" />
+    <Project Path="src/Finovatech.GatewayPagamento/Finovatech.GatewayPagamento.csproj" />
+    <Project Path="src/Finovatech.ProcessadorPagamento/Finovatech.ProcessadorPagamento.csproj" />
+    <Project Path="src/Finovatech.ServicoCatalogo/Finovatech.ServicoCatalogo.csproj" />
+    <Project Path="src/Finovatech.ServicoNotificacao/Finovatech.ServicoNotificacao.csproj" />
+    <Project Path="src/NovaMart.Frontend/NovaMart.Frontend.csproj" />
+  </Folder>
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
+</Solution>

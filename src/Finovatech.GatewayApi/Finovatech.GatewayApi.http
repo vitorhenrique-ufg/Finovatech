@@ -1,0 +1,6 @@
+@Finovatech.GatewayApi_HostAddress = http://localhost:5078
+
+GET {{Finovatech.GatewayApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

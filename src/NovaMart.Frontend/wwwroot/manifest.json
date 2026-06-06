@@ -1,0 +1,31 @@
+{
+  "name": "NovaMart — Hardware Premium",
+  "short_name": "NovaMart",
+  "description": "E-commerce de hardware premium com pagamento via FinovaTech",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#22d3ee",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Catálogo",
+      "url": "/catalog",
+      "description": "Ver todos os produtos"
+    },
+    {
+      "name": "Carrinho",
+      "url": "/cart",
+      "description": "Meu carrinho de compras"
+    }
+  ],
+  "categories": ["shopping", "technology"]
+}

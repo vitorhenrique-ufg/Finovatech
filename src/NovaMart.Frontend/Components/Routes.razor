@@ -1,0 +1,33 @@
+@using Microsoft.AspNetCore.Components.Authorization
+<NovaMart.Frontend.Compartilhados.ToastNotification />
+<AuthorizeView>
+    <Authorized>
+        <NovaMart.Frontend.Compartilhados.ModalPermissaoNotificacao />
+    </Authorized>
+</AuthorizeView>
+<Router AppAssembly="typeof(Program).Assembly">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.LayoutVazio)">
+            <NotAuthorized>
+                <NovaMart.Frontend.Components.Pages.NaoAutorizado />
+            </NotAuthorized>
+            <Authorizing>
+                <div class="min-h-screen bg-slate-50 flex items-center justify-center">
+                    <div class="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+            </Authorizing>
+        </AuthorizeRouteView>
+    </Found>
+    <NotFound>
+        <PageTitle>Página não encontrada — NovaMart</PageTitle>
+        <LayoutView Layout="typeof(Layout.LayoutVazio)">
+            <div class="min-h-screen bg-slate-50 flex items-center justify-center">
+                <div class="text-center">
+                    <p class="text-6xl font-black text-cyan-600 mb-4">404</p>
+                    <h2 class="text-xl font-bold text-slate-900 mb-2">Página não encontrada</h2>
+                    <a href="/" class="text-cyan-600 hover:text-cyan-500 text-sm">← Voltar ao início</a>
+                </div>
+            </div>
+        </LayoutView>
+    </NotFound>
+</Router>

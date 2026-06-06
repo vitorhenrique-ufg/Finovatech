@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrinho — NovaMart</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="shared.css">
+</head>
+<body class="bg-[#09090b] text-slate-100">
+
+  <!-- ============================================================
+       NAVBAR
+  ============================================================ -->
+  <nav class="sticky top-0 z-50 bg-[#0d111a]/90 backdrop-blur border-b border-[#1e293b]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center h-14 gap-4">
+
+        <!-- Logo -->
+        <a href="index.html" class="flex-shrink-0 font-black text-xl tracking-tight">
+          <span class="text-white">Nova</span><span class="text-cyan-400">Mart</span>
+        </a>
+
+        <!-- Desktop links -->
+        <div class="hidden md:flex items-center gap-6 ml-6">
+          <a href="catalog.html" class="text-sm text-slate-400 hover:text-slate-100 transition-colors">Catálogo</a>
+          <a href="catalog.html?cat=gpus" class="text-sm text-slate-400 hover:text-slate-100 transition-colors">GPUs</a>
+          <a href="catalog.html?cat=perifericos" class="text-sm text-slate-400 hover:text-slate-100 transition-colors">Periféricos</a>
+          <a href="catalog.html?cat=licencas" class="text-sm text-slate-400 hover:text-slate-100 transition-colors">Licenças</a>
+        </div>
+
+        <!-- Search (desktop) -->
+        <div class="hidden md:flex flex-1 max-w-xs ml-auto relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+          </svg>
+          <input type="text" placeholder="Buscar produtos..." class="w-full bg-[#111827] border border-[#1e293b] rounded-md pl-9 pr-3 py-2 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400/40 transition-colors">
+        </div>
+
+        <!-- Login (desktop) -->
+        <a href="auth.html" class="hidden md:inline-flex text-sm text-slate-400 hover:text-slate-100 transition-colors flex-shrink-0">
+          Login
+        </a>
+
+        <!-- Cart (desktop) -->
+        <a href="cart.html" class="hidden md:inline-flex relative items-center justify-center w-9 h-9 rounded-md hover:bg-[#1e293b] transition-colors">
+          <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m12-9l2 9m-9-4h4"/>
+          </svg>
+          <span class="absolute -top-1 -right-1 w-4 h-4 bg-cyan-400 text-[#09090b] rounded-full text-[10px] font-bold flex items-center justify-center">2</span>
+        </a>
+
+        <!-- Mobile: cart + hamburger -->
+        <div class="flex items-center gap-2 md:hidden ml-auto">
+          <a href="cart.html" class="relative inline-flex items-center justify-center w-9 h-9 rounded-md hover:bg-[#1e293b] transition-colors">
+            <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m12-9l2 9m-9-4h4"/>
+            </svg>
+            <span class="absolute -top-1 -right-1 w-4 h-4 bg-cyan-400 text-[#09090b] rounded-full text-[10px] font-bold flex items-center justify-center">2</span>
+          </a>
+          <button onclick="toggleMobileMenu()" class="inline-flex items-center justify-center w-9 h-9 rounded-md hover:bg-[#1e293b] transition-colors">
+            <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="hidden md:hidden border-t border-[#1e293b] bg-[#0d111a]">
+      <div class="px-4 py-3 flex flex-col gap-1">
+        <div class="relative mb-2">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+          </svg>
+          <input type="text" placeholder="Buscar produtos..." class="w-full bg-[#111827] border border-[#1e293b] rounded-md pl-9 pr-3 py-2 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400/40 transition-colors">
+        </div>
+        <a href="catalog.html" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2 border-b border-[#1e293b]/50">Catálogo</a>
+        <a href="catalog.html?cat=gpus" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2 border-b border-[#1e293b]/50">GPUs</a>
+        <a href="catalog.html?cat=perifericos" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2 border-b border-[#1e293b]/50">Periféricos</a>
+        <a href="catalog.html?cat=licencas" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2 border-b border-[#1e293b]/50">Licenças</a>
+        <a href="auth.html" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2">Login</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       MAIN CONTENT
+  ============================================================ -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <h1 class="text-2xl font-bold text-white mb-8">Meu Carrinho <span class="text-slate-500 font-normal text-lg">(2 itens)</span></h1>
+
+    <!-- EMPTY STATE -->
+    <div id="emptyCart" class="hidden flex flex-col items-center justify-center py-24 text-center">
+      <div class="text-5xl mb-4">🛒</div>
+      <h3 class="text-xl font-bold text-slate-300 mb-2">Carrinho vazio</h3>
+      <p class="text-slate-500 mb-6">Adicione produtos para continuar.</p>
+      <a href="catalog.html" class="btn-primary">Explorar catálogo</a>
+    </div>
+
+    <!-- FILLED STATE -->
+    <div id="filledCart" class="flex flex-col lg:flex-row gap-8">
+
+      <!-- LEFT — Cart Items -->
+      <div class="flex-1 flex flex-col gap-3">
+
+        <!-- Item 1 — RTX 4080 Super -->
+        <div class="cart-item flex gap-4 p-4 bg-[#111827] border border-[#1e293b] rounded-xl" data-base-price="4299">
+          <!-- Product image placeholder -->
+          <div class="w-20 h-20 bg-gradient-to-br from-[#1a2235] to-[#0f172a] rounded-lg border border-[#1e293b] flex items-center justify-center flex-shrink-0">
+            <div class="w-10 h-6 border border-[#22d3ee44] bg-[#22d3ee0d] rounded"></div>
+          </div>
+          <!-- Product info -->
+          <div class="flex-1 min-w-0">
+            <p class="text-[10px] text-cyan-400 font-bold tracking-widest uppercase mb-0.5">GPU</p>
+            <h3 class="text-sm font-semibold text-white mb-1 truncate">RTX 4080 Super 16GB</h3>
+            <p class="text-xs text-slate-500">Em estoque</p>
+          </div>
+          <!-- Controls -->
+          <div class="flex flex-col items-end justify-between">
+            <button onclick="removeItem(this)" class="text-slate-600 hover:text-red-400 text-xs">✕</button>
+            <div class="flex items-center gap-2">
+              <button onclick="changeQty(this,-1)" class="w-7 h-7 rounded-lg bg-[#0d111a] border border-[#1e293b] text-slate-300 hover:border-cyan-400/30 text-sm font-bold">−</button>
+              <span class="qty text-sm font-bold text-white w-4 text-center">1</span>
+              <button onclick="changeQty(this,1)"  class="w-7 h-7 rounded-lg bg-[#0d111a] border border-[#1e293b] text-slate-300 hover:border-cyan-400/30 text-sm font-bold">+</button>
+            </div>
+            <span class="item-price text-base font-black text-white">R$ 4.299</span>
+          </div>
+        </div>
+
+        <!-- Item 2 — MX Keys S -->
+        <div class="cart-item flex gap-4 p-4 bg-[#111827] border border-[#1e293b] rounded-xl" data-base-price="649">
+          <!-- Product image placeholder -->
+          <div class="w-20 h-20 bg-gradient-to-br from-[#1a2235] to-[#0f172a] rounded-lg border border-[#1e293b] flex items-center justify-center flex-shrink-0">
+            <div class="w-10 h-6 border border-[#22d3ee44] bg-[#22d3ee0d] rounded"></div>
+          </div>
+          <!-- Product info -->
+          <div class="flex-1 min-w-0">
+            <p class="text-[10px] text-cyan-400 font-bold tracking-widest uppercase mb-0.5">PERIFÉRICO</p>
+            <h3 class="text-sm font-semibold text-white mb-1 truncate">MX Keys S</h3>
+            <p class="text-xs text-slate-500">Em estoque</p>
+          </div>
+          <!-- Controls -->
+          <div class="flex flex-col items-end justify-between">
+            <button onclick="removeItem(this)" class="text-slate-600 hover:text-red-400 text-xs">✕</button>
+            <div class="flex items-center gap-2">
+              <button onclick="changeQty(this,-1)" class="w-7 h-7 rounded-lg bg-[#0d111a] border border-[#1e293b] text-slate-300 hover:border-cyan-400/30 text-sm font-bold">−</button>
+              <span class="qty text-sm font-bold text-white w-4 text-center">1</span>
+              <button onclick="changeQty(this,1)"  class="w-7 h-7 rounded-lg bg-[#0d111a] border border-[#1e293b] text-slate-300 hover:border-cyan-400/30 text-sm font-bold">+</button>
+            </div>
+            <span class="item-price text-base font-black text-white">R$ 649</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT — Order Summary -->
+      <div class="lg:w-80 flex-shrink-0">
+        <div class="bg-[#111827] border border-[#1e293b] rounded-xl p-5 sticky top-20 flex flex-col gap-4">
+          <h2 class="text-base font-bold text-white">Resumo do pedido</h2>
+
+          <!-- Coupon -->
+          <div class="flex gap-2">
+            <input type="text" id="couponInput" placeholder="Código de cupom" class="input-base text-sm py-2">
+            <button onclick="applyCoupon()" class="btn-ghost text-xs py-2 px-3 flex-shrink-0">Aplicar</button>
+          </div>
+          <div id="couponMsg" class="hidden text-xs text-green-400">✓ Cupom NOVATECH10 aplicado — 10% de desconto</div>
+
+          <!-- Price breakdown -->
+          <div class="flex flex-col gap-2 text-sm pb-4 border-b border-[#1e293b]">
+            <div class="flex justify-between">
+              <span class="text-slate-400">Subtotal</span>
+              <span id="subtotal" class="text-slate-200">R$ 4.948</span>
+            </div>
+            <div id="discountLine" class="hidden flex justify-between text-green-400">
+              <span>Desconto (10%)</span>
+              <span>− R$ 494,80</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Frete</span>
+              <span class="text-green-400">Grátis</span>
+            </div>
+          </div>
+
+          <!-- Total -->
+          <div class="flex justify-between items-baseline">
+            <span class="font-bold text-white">Total</span>
+            <span id="totalPrice" class="text-2xl font-black text-cyan-400">R$ 4.948</span>
+          </div>
+
+          <a href="checkout.html" class="btn-primary w-full text-sm justify-center">Finalizar compra →</a>
+          <a href="catalog.html" class="block text-center text-xs text-slate-500 hover:text-slate-300">Continuar comprando</a>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="border-t border-[#1e293b] py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+
+        <!-- Logo -->
+        <a href="index.html" class="font-black text-lg tracking-tight">
+          <span class="text-white">Nova</span><span class="text-cyan-400">Mart</span>
+        </a>
+
+        <!-- Nav links -->
+        <nav class="flex items-center gap-6">
+          <a href="#" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Termos</a>
+          <a href="#" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Privacidade</a>
+          <a href="#" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Suporte</a>
+        </nav>
+
+        <!-- Copyright -->
+        <p class="text-xs text-slate-600">&copy; 2026 NovaMart. Todos os direitos reservados.</p>
+
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       TOAST NOTIFICATION
+  ============================================================ -->
+  <div id="toast"
+       class="hidden fixed bottom-5 right-5 z-[100] animate-fade-up bg-[#111827] border border-[#22d3ee33] rounded-xl px-5 py-3 shadow-2xl flex items-center gap-3 max-w-xs">
+    <span class="animate-blink w-2 h-2 rounded-full bg-cyan-400 flex-shrink-0"></span>
+    <span id="toastMsg" class="text-sm text-slate-100 font-medium">Adicionado ao carrinho ✓</span>
+  </div>
+
+  <!-- ============================================================
+       INLINE SCRIPTS
+  ============================================================ -->
+  <script>
+    function changeQty(btn, delta) {
+      const row = btn.closest('.cart-item');
+      const qtyEl = row.querySelector('.qty');
+      const priceEl = row.querySelector('.item-price');
+      const basePrice = parseInt(row.dataset.basePrice || '0');
+      let qty = parseInt(qtyEl.textContent) + delta;
+      if (qty < 1) qty = 1;
+      qtyEl.textContent = qty;
+      priceEl.textContent = 'R$ ' + (basePrice * qty).toLocaleString('pt-BR');
+      recalcTotal();
+    }
+
+    function removeItem(btn) {
+      btn.closest('.cart-item').remove();
+      recalcTotal();
+    }
+
+    function applyCoupon() {
+      const code = document.getElementById('couponInput').value.trim().toUpperCase();
+      if (code === 'NOVATECH10') {
+        document.getElementById('couponMsg').classList.remove('hidden');
+        document.getElementById('discountLine').classList.remove('hidden');
+        window._couponApplied = true;
+        recalcTotal();
+      }
+    }
+
+    function recalcTotal() {
+      const items = [...document.querySelectorAll('.cart-item')];
+      const subtotal = items.reduce((s, row) => {
+        const basePrice = parseInt(row.dataset.basePrice || '0');
+        const qty = parseInt(row.querySelector('.qty').textContent);
+        return s + basePrice * qty;
+      }, 0);
+
+      document.getElementById('subtotal').textContent = 'R$ ' + subtotal.toLocaleString('pt-BR');
+
+      let total = subtotal;
+      if (window._couponApplied) {
+        const discount = Math.round(subtotal * 0.1);
+        document.getElementById('discountLine').querySelector('span:last-child').textContent =
+          '− R$ ' + discount.toLocaleString('pt-BR');
+        total = subtotal - discount;
+      }
+
+      document.getElementById('totalPrice').textContent = 'R$ ' + total.toLocaleString('pt-BR');
+
+      // Update item count in heading
+      const countEl = document.querySelector('h1 span');
+      if (countEl) countEl.textContent = `(${items.length} ${items.length === 1 ? 'item' : 'itens'})`;
+
+      // Show empty state if no items
+      if (items.length === 0) {
+        document.getElementById('filledCart').classList.add('hidden');
+        document.getElementById('emptyCart').classList.remove('hidden');
+      }
+    }
+
+    function toggleMobileMenu() {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      t.classList.remove('hidden');
+      setTimeout(() => t.classList.add('hidden'), 3000);
+    }
+  </script>
+
+</body>
+</html>

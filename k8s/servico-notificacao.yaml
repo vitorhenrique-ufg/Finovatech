@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: servico-notificacao
+  namespace: finovatech
+  labels:
+    app: servico-notificacao
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: servico-notificacao
+  template:
+    metadata:
+      labels:
+        app: servico-notificacao
+    spec:
+      containers:
+        - name: servico-notificacao
+          image: finovatech/servico-notificacao:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: finovatech-config
+            - secretRef:
+                name: finovatech-secrets
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: servico-notificacao
+  namespace: finovatech
+spec:
+  selector:
+    app: servico-notificacao
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP

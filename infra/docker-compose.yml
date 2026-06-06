@@ -1,0 +1,327 @@
+name: finovatech-compose
+
+x-tz: &tz
+  TZ: America/Sao_Paulo
+
+networks:
+  finovatech-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
+  rabbitmq-data:
+  grafana-data:
+  prometheus-data:
+  frontend-keys:
+
+services:
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: finovatech-rabbitmq
+    environment:
+      <<: *tz
+      RABBITMQ_DEFAULT_USER: finovatech
+      RABBITMQ_DEFAULT_PASS: finovatech123
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+      - "15692:15692"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+      - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
+    networks:
+      - finovatech-net
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: finovatech-postgres
+    environment:
+      <<: *tz
+      POSTGRES_USER: finovatech
+      POSTGRES_PASSWORD: finovatech123
+      POSTGRES_DB: finovatech_pagamentos
+      PGTZ: America/Sao_Paulo
+    ports:
+      - "15432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - finovatech-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finovatech -d finovatech_pagamentos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: finovatech-redis
+    command: redis-server --appendonly yes
+    environment:
+      <<: *tz
+    ports:
+      - "16379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - finovatech-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.58
+    container_name: finovatech-jaeger
+    environment:
+      <<: *tz
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+    networks:
+      - finovatech-net
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: finovatech-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+    environment:
+      <<: *tz
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - finovatech-net
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: finovatech-grafana
+    environment:
+      <<: *tz
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: finovatech123
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_DEFAULT_APP_MODE: production
+      GF_DATE_FORMATS_DEFAULT_TIMEZONE: America/Sao_Paulo
+      GF_UNIFIED_ALERTING_ENABLED: "true"
+      GF_ALERTING_ENABLED: "false"
+      # ── SMTP — obrigatório para alertas por email ──────────────────────────
+      GF_SMTP_ENABLED: "true"
+      GF_SMTP_HOST: "${SMTP_HOST:-smtp.gmail.com:587}"
+      GF_SMTP_USER: "${SMTP_USER:-}"
+      GF_SMTP_PASSWORD: "${SMTP_PASSWORD:-}"
+      GF_SMTP_FROM_ADDRESS: "${SMTP_FROM:-alertas@finovatech.com}"
+      GF_SMTP_FROM_NAME: "FinovaTech Alertas"
+      GF_SMTP_SKIP_VERIFY: "${SMTP_SKIP_VERIFY:-false}"
+      ALERT_EMAIL_TO: "${ALERT_EMAIL_TO:-alertas@finovatech.local}"
+      # ── Discord (opcional) ────────────────────────────────────────────────
+      DISCORD_WEBHOOK_URL: "${DISCORD_WEBHOOK_URL:-https://discord.com/api/webhooks/placeholder}"
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - finovatech-net
+    depends_on:
+      - prometheus
+
+  finovatech-gateway-api:
+    build:
+      context: ..
+      dockerfile: src/Finovatech.GatewayApi/Dockerfile
+    container_name: finovatech-gateway-api
+    ports:
+      - "8000:8080"
+    environment:
+      <<: *tz
+      ASPNETCORE_ENVIRONMENT: Production
+      Jwt__ChaveSecreta: "finovatech-super-secret-key-2026-production!"
+      Jwt__Emissor: "finovatech"
+      Jwt__Audiencia: "novamart"
+      ConnectionStrings__Redis: "finovatech-redis:6379"
+      ReverseProxy__Clusters__gateway-pagamento__Destinations__primary__Address: "http://finovatech-gateway-pagamento:8080"
+      ReverseProxy__Clusters__servico-catalogo__Destinations__primary__Address: "http://finovatech-servico-catalogo:8080"
+      ReverseProxy__Clusters__servico-notificacao__Destinations__primary__Address: "http://finovatech-servico-notificacao:8080"
+      OpenTelemetry__Endpoint: "http://finovatech-jaeger:4317"
+    networks:
+      - finovatech-net
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/8080' 2>/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  finovatech-gateway-pagamento:
+    build:
+      context: ..
+      dockerfile: src/Finovatech.GatewayPagamento/Dockerfile
+    container_name: finovatech-gateway-pagamento
+    environment:
+      <<: *tz
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Pagamentos: "Host=finovatech-postgres;Database=finovatech_pagamentos;Username=finovatech;Password=finovatech123"
+      ConnectionStrings__Redis: "finovatech-redis:6379"
+      RabbitMQ__Host: "finovatech-rabbitmq"
+      RabbitMQ__Username: "finovatech"
+      RabbitMQ__Password: "finovatech123"
+      OpenTelemetry__Endpoint: "http://finovatech-jaeger:4317"
+    networks:
+      - finovatech-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/8080' 2>/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  finovatech-processador-pagamento:
+    build:
+      context: ..
+      dockerfile: src/Finovatech.ProcessadorPagamento/Dockerfile
+    container_name: finovatech-processador-pagamento
+    environment:
+      <<: *tz
+      ASPNETCORE_ENVIRONMENT: Production
+      RabbitMQ__Host: "finovatech-rabbitmq"
+      RabbitMQ__Username: "finovatech"
+      RabbitMQ__Password: "finovatech123"
+      OpenTelemetry__Endpoint: "http://finovatech-jaeger:4317"
+    networks:
+      - finovatech-net
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/8080' 2>/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  finovatech-deteccao-fraude:
+    build:
+      context: ..
+      dockerfile: src/Finovatech.DeteccaoFraude/Dockerfile
+    container_name: finovatech-deteccao-fraude
+    environment:
+      <<: *tz
+      ASPNETCORE_ENVIRONMENT: Production
+      RabbitMQ__Host: "finovatech-rabbitmq"
+      RabbitMQ__Username: "finovatech"
+      RabbitMQ__Password: "finovatech123"
+      AnaliseFraude__ValorMaximoPorTransacao: "50000"
+      OpenTelemetry__Endpoint: "http://finovatech-jaeger:4317"
+      # ── Provedor de IA (Anthropic | OpenRouter | OpenAI | Ollama | Compativel)
+      ProvedorIA__Provedor: "${PROVEDOR_IA:-Anthropic}"
+      ProvedorIA__Modelo:   "${MODELO_IA:-claude-opus-4-8}"
+      ProvedorIA__ApiKey:   "${APIKEY_IA:-}"
+      ProvedorIA__BaseUrl:  "${BASEURL_IA:-}"
+    networks:
+      - finovatech-net
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/8080' 2>/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  finovatech-servico-notificacao:
+    build:
+      context: ..
+      dockerfile: src/Finovatech.ServicoNotificacao/Dockerfile
+    container_name: finovatech-servico-notificacao
+    environment:
+      <<: *tz
+      ASPNETCORE_ENVIRONMENT: Production
+      RabbitMQ__Host: "finovatech-rabbitmq"
+      RabbitMQ__Username: "finovatech"
+      RabbitMQ__Password: "finovatech123"
+      ConnectionStrings__Redis: "finovatech-redis:6379"
+      OpenTelemetry__Endpoint: "http://finovatech-jaeger:4317"
+      Push__PublicKey:  "BDkEYk83ZkiBjBIUzOSfi-mccntxv7aLLNNB25PacJnVF1e21lU8jyG3vvhki72VcQc_SUYLuDhXPDo_qabAr-g"
+      Push__PrivateKey: "Ve4E2zXQvyRW0dT8L3TwADzlLZpoqbvwVX5cXhsp0fI"
+      Push__Subject:    "mailto:dev@finovatech.com"
+    networks:
+      - finovatech-net
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/8080' 2>/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  finovatech-servico-catalogo:
+    build:
+      context: ..
+      dockerfile: src/Finovatech.ServicoCatalogo/Dockerfile
+    container_name: finovatech-servico-catalogo
+    environment:
+      <<: *tz
+      ASPNETCORE_ENVIRONMENT: Production
+      OpenTelemetry__Endpoint: "http://finovatech-jaeger:4317"
+    networks:
+      - finovatech-net
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/8080' 2>/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  novamart-frontend:
+    build:
+      context: ..
+      dockerfile: src/NovaMart.Frontend/Dockerfile
+    container_name: novamart-frontend
+    ports:
+      - "5000:8080"
+    environment:
+      <<: *tz
+      ASPNETCORE_ENVIRONMENT: Production
+      GatewayApi__BaseUrl: "http://finovatech-gateway-api:8080"
+      Frontend__BaseUrl: "http://localhost:8080"
+      Push__PublicKey: "BDkEYk83ZkiBjBIUzOSfi-mccntxv7aLLNNB25PacJnVF1e21lU8jyG3vvhki72VcQc_SUYLuDhXPDo_qabAr-g"
+    networks:
+      - finovatech-net
+    depends_on:
+      - finovatech-gateway-api
+    restart: on-failure
+    volumes:
+      - frontend-keys:/app/dataprotection-keys

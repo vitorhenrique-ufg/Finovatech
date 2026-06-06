@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "GatewayPagamento (Local)": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:8001",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ConnectionStrings__Pagamentos": "Host=localhost;Port=5432;Database=finovatech_pagamentos;Username=finovatech;Password=finovatech123",
+        "ConnectionStrings__Redis": "localhost:16379",
+        "RabbitMQ__Host": "localhost",
+        "RabbitMQ__Username": "finovatech",
+        "RabbitMQ__Password": "finovatech123"
+      }
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchBrowser": false,
+      "publishAllPorts": true,
+      "useSSL": false
+    }
+  }
+}

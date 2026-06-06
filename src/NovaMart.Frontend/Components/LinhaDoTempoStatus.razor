@@ -1,0 +1,201 @@
+@using System.Net.Http.Headers
+@using System.Security.Claims
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components.Authorization
+@using NovaMart.Frontend.Modelos
+@using NovaMart.Frontend.Servicos
+@inject IServicoHubPedido HubPedido
+@inject NavigationManager Nav
+@inject AuthenticationStateProvider AuthState
+@inject IHttpClientFactory HttpFactory
+@implements IAsyncDisposable
+
+@if (_statusConexao != EstadoConexao.Conectado)
+{
+    <div class="flex items-center gap-2 mb-4 px-4 py-2.5 rounded-lg border
+        @(_statusConexao == EstadoConexao.Reconectando
+            ? "bg-yellow-500/10 border-yellow-500/30 text-yellow-400"
+            : "bg-red-500/10 border-red-500/30 text-red-400")">
+        @if (_statusConexao == EstadoConexao.Reconectando)
+        {
+            <div class="w-3 h-3 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin flex-shrink-0"></div>
+            <span class="text-xs font-medium">Reconectando ao servidor...</span>
+        }
+        else
+        {
+            <i class="fa-solid fa-triangle-exclamation text-xs flex-shrink-0"></i>
+            <span class="text-xs font-medium">Conexão perdida. Atualize a página para tentar novamente.</span>
+        }
+    </div>
+}
+
+<div class="bg-white border border-slate-200 rounded-2xl p-6">
+    @for (int i = 0; i < _nos.Count; i++)
+    {
+        NoTimeline no = _nos[i];
+        bool isLast = i == _nos.Count - 1;
+        <div class="flex gap-4 @(isLast ? "" : "pb-8")">
+            <div class="flex flex-col items-center">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10
+                    @(no.Estado == EstadoNo.Concluido  ? "bg-cyan-500" :
+                      no.Estado == EstadoNo.Ativo      ? "border-2 border-cyan-500 bg-white" :
+                      no.Estado == EstadoNo.Rejeitado  ? "bg-red-500" :
+                                                         "border-2 border-slate-300 bg-white")">
+                    @if (no.Estado == EstadoNo.Concluido)
+                    {
+                        <i class="fa-solid fa-check text-xs font-black text-white"></i>
+                    }
+                    else if (no.Estado == EstadoNo.Ativo)
+                    {
+                        <div class="w-4 h-4 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+                    }
+                    else if (no.Estado == EstadoNo.Rejeitado)
+                    {
+                        <i class="fa-solid fa-xmark text-xs text-white"></i>
+                    }
+                    else
+                    {
+                        <span class="text-slate-400 text-xs font-semibold">@no.Numero</span>
+                    }
+                </div>
+                @if (!isLast)
+                {
+                    <div class="w-0.5 flex-1 mt-1 min-h-[32px]
+                        @(no.Estado == EstadoNo.Concluido ? "bg-cyan-500" :
+                          no.Estado == EstadoNo.Rejeitado ? "bg-red-500/30" : "bg-slate-200")"></div>
+                }
+            </div>
+            <div class="pt-1">
+                <p class="text-sm font-semibold flex items-center gap-1.5
+                    @(no.Estado == EstadoNo.Pendente   ? "text-slate-400" :
+                      no.Estado == EstadoNo.Rejeitado  ? "text-red-400"   : "text-slate-900")">
+                    <i class="@no.Icone text-xs"></i>
+                    @no.Label
+                </p>
+                <p class="text-xs @(no.Estado == EstadoNo.Ativo ? "text-slate-500" : "text-slate-400") mt-0.5">
+                    @no.SubInfo
+                </p>
+                @if (no.Estado == EstadoNo.Rejeitado)
+                {
+                    <button @onclick="VoltarParaCheckout"
+                        class="mt-3 bg-red-500 text-white text-sm font-bold px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">
+                        <i class="fa-solid fa-rotate-left mr-1.5"></i> Tentar novamente
+                    </button>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required Guid PedidoId { get; set; }
+
+    private enum EstadoNo    { Pendente, Ativo, Concluido, Rejeitado }
+    private enum EstadoConexao { Conectado, Reconectando, Encerrado }
+
+    private record NoTimeline(int Numero, string Icone, string Label, string SubInfo, EstadoNo Estado);
+
+    private List<NoTimeline> _nos = [];
+    private EstadoConexao _statusConexao = EstadoConexao.Conectado;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _nos =
+        [
+            new(1, "fa-solid fa-receipt",       "Pedido Criado",    "Aguardando processamento", EstadoNo.Concluido),
+            new(2, "fa-solid fa-shield-halved", "Análise de Fraude","Processando...",            EstadoNo.Ativo),
+            new(3, "fa-solid fa-circle-check",  "Aprovação",        "Aguardando análise",        EstadoNo.Pendente),
+            new(4, "fa-solid fa-bell",          "Notificação",      "Aguardando aprovação",      EstadoNo.Pendente),
+        ];
+
+        HubPedido.OnReconectando    += AtualizaReconectandoAsync;
+        HubPedido.OnReconectado     += AtualizaReconectadoAsync;
+        HubPedido.OnConexaoEncerrada += AtualizaEncerradoAsync;
+
+        AuthenticationState auth = await AuthState.GetAuthenticationStateAsync();
+        string? token = auth.User.FindFirst("access_token")?.Value;
+
+        await HubPedido.ConectaAoPedidoAsync(PedidoId, OnStatusAsync, token);
+
+        // Immediately check current status via REST (in case event was missed)
+        await ConsulteStatusAtualAsync(token);
+    }
+
+    private async Task ConsulteStatusAtualAsync(string? token)
+    {
+        try
+        {
+            HttpClient client = HttpFactory.CreateClient("gateway");
+            if (!string.IsNullOrEmpty(token))
+                client.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+
+            HttpResponseMessage resp = await client.GetAsync($"/payments/{PedidoId}");
+            if (!resp.IsSuccessStatusCode) return;
+
+            string json = await resp.Content.ReadAsStringAsync();
+            using JsonDocument doc = JsonDocument.Parse(json);
+            string situacao = doc.RootElement.GetProperty("situacao").GetString() ?? string.Empty;
+
+            if (situacao is "Aprovado" or "Rejeitado")
+            {
+                await OnStatusAsync(new AtualizacaoStatusViewModel(
+                    PedidoId,
+                    situacao,
+                    null,
+                    DateTimeOffset.Now));
+            }
+        }
+        catch { /* ignore — fallback to SignalR */ }
+    }
+
+    private async Task OnStatusAsync(AtualizacaoStatusViewModel s)
+    {
+        if (s.Situacao == "Aprovado")
+            _nos =
+            [
+                new(1, "fa-solid fa-receipt",       "Pedido Criado",     s.OcorridoEm.ToLocalTime().ToString("HH:mm:ss"), EstadoNo.Concluido),
+                new(2, "fa-solid fa-shield-halved", "Análise de Fraude", "Aprovado — risco baixo",           EstadoNo.Concluido),
+                new(3, "fa-solid fa-circle-check",  "Pagamento Aprovado",s.OcorridoEm.ToLocalTime().ToString("HH:mm:ss"), EstadoNo.Concluido),
+                new(4, "fa-solid fa-bell",          "Notificação enviada","",                                EstadoNo.Concluido),
+            ];
+        else if (s.Situacao == "Rejeitado")
+            _nos =
+            [
+                new(1, "fa-solid fa-receipt",       "Pedido Criado",      "",                        EstadoNo.Concluido),
+                new(2, "fa-solid fa-shield-halved", "Análise de Fraude",  s.Motivo ?? "Rejeitado",   EstadoNo.Rejeitado),
+                new(3, "fa-solid fa-circle-xmark",  "Pagamento Rejeitado",s.Motivo ?? "",            EstadoNo.Rejeitado),
+                new(4, "fa-solid fa-bell",          "Notificação",        "",                        EstadoNo.Pendente),
+            ];
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task AtualizaReconectandoAsync(string _)
+    {
+        _statusConexao = EstadoConexao.Reconectando;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task AtualizaReconectadoAsync()
+    {
+        _statusConexao = EstadoConexao.Conectado;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task AtualizaEncerradoAsync(string _)
+    {
+        _statusConexao = EstadoConexao.Encerrado;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void VoltarParaCheckout() => Nav.NavigateTo("/checkout");
+
+    public async ValueTask DisposeAsync()
+    {
+        HubPedido.OnReconectando     -= AtualizaReconectandoAsync;
+        HubPedido.OnReconectado      -= AtualizaReconectadoAsync;
+        HubPedido.OnConexaoEncerrada -= AtualizaEncerradoAsync;
+        await HubPedido.DesconecteDoPedidoAsync();
+    }
+}

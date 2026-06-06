@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedido #NM-20481 — NovaMart</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="shared.css">
+</head>
+<body class="bg-[#09090b] text-slate-100">
+
+  <!-- ============================================================
+       NAVBAR
+  ============================================================ -->
+  <nav class="sticky top-0 z-50 bg-[#0d111a]/90 backdrop-blur border-b border-[#1e293b]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center h-14 gap-4">
+
+        <!-- Logo -->
+        <a href="index.html" class="flex-shrink-0 font-black text-xl tracking-tight">
+          <span class="text-white">Nova</span><span class="text-cyan-400">Mart</span>
+        </a>
+
+        <!-- Desktop links -->
+        <div class="hidden md:flex items-center gap-6 ml-6">
+          <a href="catalog.html" class="text-sm text-slate-400 hover:text-slate-100 transition-colors">Catálogo</a>
+          <a href="catalog.html?cat=gpus" class="text-sm text-slate-400 hover:text-slate-100 transition-colors">GPUs</a>
+          <a href="catalog.html?cat=perifericos" class="text-sm text-slate-400 hover:text-slate-100 transition-colors">Periféricos</a>
+          <a href="catalog.html?cat=licencas" class="text-sm text-slate-400 hover:text-slate-100 transition-colors">Licenças</a>
+        </div>
+
+        <!-- Search (desktop) -->
+        <div class="hidden md:flex flex-1 max-w-xs ml-auto relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+          </svg>
+          <input type="text" placeholder="Buscar produtos..." class="w-full bg-[#111827] border border-[#1e293b] rounded-md pl-9 pr-3 py-2 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400/40 transition-colors">
+        </div>
+
+        <!-- Login (desktop) -->
+        <a href="auth.html" class="hidden md:inline-flex text-sm text-slate-400 hover:text-slate-100 transition-colors flex-shrink-0">
+          Login
+        </a>
+
+        <!-- Cart (desktop) -->
+        <a href="cart.html" class="hidden md:inline-flex relative items-center justify-center w-9 h-9 rounded-md hover:bg-[#1e293b] transition-colors">
+          <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m12-9l2 9m-9-4h4"/>
+          </svg>
+          <span class="absolute -top-1 -right-1 w-4 h-4 bg-cyan-400 text-[#09090b] rounded-full text-[10px] font-bold flex items-center justify-center">2</span>
+        </a>
+
+        <!-- Mobile: cart + hamburger -->
+        <div class="flex items-center gap-2 md:hidden ml-auto">
+          <a href="cart.html" class="relative inline-flex items-center justify-center w-9 h-9 rounded-md hover:bg-[#1e293b] transition-colors">
+            <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m12-9l2 9m-9-4h4"/>
+            </svg>
+            <span class="absolute -top-1 -right-1 w-4 h-4 bg-cyan-400 text-[#09090b] rounded-full text-[10px] font-bold flex items-center justify-center">2</span>
+          </a>
+          <button onclick="toggleMobileMenu()" class="inline-flex items-center justify-center w-9 h-9 rounded-md hover:bg-[#1e293b] transition-colors">
+            <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="hidden md:hidden border-t border-[#1e293b] bg-[#0d111a]">
+      <div class="px-4 py-3 flex flex-col gap-1">
+        <div class="relative mb-2">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+          </svg>
+          <input type="text" placeholder="Buscar produtos..." class="w-full bg-[#111827] border border-[#1e293b] rounded-md pl-9 pr-3 py-2 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400/40 transition-colors">
+        </div>
+        <a href="catalog.html" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2 border-b border-[#1e293b]/50">Catálogo</a>
+        <a href="catalog.html?cat=gpus" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2 border-b border-[#1e293b]/50">GPUs</a>
+        <a href="catalog.html?cat=perifericos" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2 border-b border-[#1e293b]/50">Periféricos</a>
+        <a href="catalog.html?cat=licencas" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2 border-b border-[#1e293b]/50">Licenças</a>
+        <a href="auth.html" class="text-sm text-slate-400 hover:text-slate-100 transition-colors py-2">Login</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       MAIN CONTENT
+  ============================================================ -->
+  <main class="max-w-2xl mx-auto px-4 py-10">
+
+    <!-- Page Header -->
+    <div class="flex items-start justify-between mb-8 flex-wrap gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-white mb-1">
+          Pedido <span class="text-cyan-400">#NM-20481</span>
+        </h1>
+        <p class="text-sm text-slate-500">Criado em 28/05/2026 às 14:23</p>
+      </div>
+      <div class="flex items-center gap-2 bg-[#111827] border border-[#22d3ee33] rounded-full px-3 py-1.5 text-xs text-cyan-400 font-semibold">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-blink"></span>
+        Ao vivo
+      </div>
+    </div>
+
+    <!-- STATUS TIMELINE -->
+    <div class="bg-[#111827] border border-[#1e293b] rounded-2xl p-6 mb-6">
+
+      <!-- Node 1: Pedido Criado (done) -->
+      <div class="flex gap-4 pb-8">
+        <div class="flex flex-col items-center">
+          <div class="bg-cyan-400 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10">
+            <span class="text-[#09090b] text-xs font-black">✓</span>
+          </div>
+          <div class="bg-cyan-400 w-0.5 flex-1 mt-1 min-h-[32px]"></div>
+        </div>
+        <div class="pt-1">
+          <p class="text-sm font-semibold text-white">🟡 Pedido Criado</p>
+          <p class="text-xs text-slate-500 mt-0.5">14:23:01 · Pagamento iniciado</p>
+        </div>
+      </div>
+
+      <!-- Node 2: Análise de Fraude (active, pulsing) -->
+      <div class="flex gap-4 pb-8">
+        <div class="flex flex-col items-center">
+          <div id="fraudIcon" class="border-2 border-cyan-400 bg-[#09090b] animate-pulse-ring w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10">
+            <div class="w-3 h-3 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin-slow"></div>
+          </div>
+          <div id="fraudLine" class="bg-[#1e293b] w-0.5 flex-1 mt-1 min-h-[32px]"></div>
+        </div>
+        <div class="pt-1">
+          <p id="fraudLabel" class="text-sm font-semibold text-white">🔵 Análise de Fraude</p>
+          <p id="fraudSub" class="text-xs text-slate-400 mt-0.5">
+            <span class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin-slow"></span>
+              Processando...
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Node 3: Aprovação (pending) -->
+      <div class="flex gap-4 pb-8">
+        <div class="flex flex-col items-center">
+          <div id="approvedIcon" class="border-2 border-[#1e293b] bg-[#09090b] w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10">
+            <span class="text-slate-600 text-xs">3</span>
+          </div>
+          <div id="approvedLine" class="bg-[#1e293b] w-0.5 flex-1 mt-1 min-h-[32px]"></div>
+        </div>
+        <div class="pt-1">
+          <p id="approvedLabel" class="text-sm font-semibold text-slate-500">Aprovação</p>
+          <p id="approvedSub" class="text-xs text-slate-600 mt-0.5">Aguardando análise de fraude</p>
+        </div>
+      </div>
+
+      <!-- Node 4: Notificação (pending, last node — no line) -->
+      <div class="flex gap-4">
+        <div class="flex flex-col items-center">
+          <div id="notifIcon" class="border-2 border-[#1e293b] bg-[#09090b] w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10">
+            <span class="text-slate-600 text-xs">4</span>
+          </div>
+        </div>
+        <div class="pt-1">
+          <p class="text-sm font-semibold text-slate-500">Notificação</p>
+          <p class="text-xs text-slate-600 mt-0.5">Email e webhook serão enviados</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Simulation Controls -->
+    <div class="flex gap-3 mb-6 flex-wrap">
+      <button onclick="simulateApproved()" class="btn-primary text-sm flex-1 min-w-[160px]">▶ Simular: Aprovado</button>
+      <button onclick="simulateRejected()" class="flex-1 min-w-[160px] bg-red-500/20 border border-red-500/30 text-red-400 font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-red-500/30 transition-colors">✕ Simular: Rejeitado</button>
+    </div>
+
+    <!-- Order Details Card -->
+    <div class="bg-[#111827] border border-[#1e293b] rounded-2xl p-5">
+      <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Detalhes do pedido</h3>
+      <div class="grid sm:grid-cols-2 gap-4 text-sm">
+        <div><span class="text-slate-500 text-xs block mb-0.5">Pedido</span><span class="text-white font-semibold">#NM-20481</span></div>
+        <div><span class="text-slate-500 text-xs block mb-0.5">Valor</span><span class="text-cyan-400 font-black text-xl">R$ 4.948</span></div>
+        <div><span class="text-slate-500 text-xs block mb-0.5">Itens</span><span class="text-slate-300">RTX 4080 Super, MX Keys S</span></div>
+        <div><span class="text-slate-500 text-xs block mb-0.5">Pagamento</span><span class="text-slate-300">Cartão •••• 4242</span></div>
+      </div>
+      <div class="mt-4 pt-4 border-t border-[#1e293b] flex gap-3">
+        <a href="orders.html" class="text-xs text-cyan-400 hover:text-cyan-300">← Meus pedidos</a>
+        <a href="catalog.html" class="text-xs text-slate-500 hover:text-slate-300 ml-auto">Continuar comprando</a>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="border-t border-[#1e293b] py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+
+        <!-- Logo -->
+        <a href="index.html" class="font-black text-lg tracking-tight">
+          <span class="text-white">Nova</span><span class="text-cyan-400">Mart</span>
+        </a>
+
+        <!-- Nav links -->
+        <nav class="flex items-center gap-6">
+          <a href="#" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Termos</a>
+          <a href="#" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Privacidade</a>
+          <a href="#" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Suporte</a>
+        </nav>
+
+        <!-- Copyright -->
+        <p class="text-xs text-slate-600">&copy; 2026 NovaMart. Todos os direitos reservados.</p>
+
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       TOAST NOTIFICATION
+  ============================================================ -->
+  <div id="toast"
+       class="hidden fixed bottom-5 right-5 z-[100] animate-fade-up bg-[#111827] border border-[#22d3ee33] rounded-xl px-5 py-3 shadow-2xl flex items-center gap-3 max-w-xs">
+    <span class="animate-blink w-2 h-2 rounded-full bg-cyan-400 flex-shrink-0"></span>
+    <span id="toastMsg" class="text-sm text-slate-100 font-medium">Adicionado ao carrinho ✓</span>
+  </div>
+
+  <!-- ============================================================
+       INLINE SCRIPTS
+  ============================================================ -->
+  <script>
+    function simulateApproved() {
+      // Fraud check → done
+      const fraudIcon = document.getElementById('fraudIcon');
+      fraudIcon.innerHTML = '<span class="text-[#09090b] text-xs font-black">✓</span>';
+      fraudIcon.className = 'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 bg-cyan-400';
+      document.getElementById('fraudLine').className = 'w-0.5 flex-1 mt-1 min-h-[32px] bg-cyan-400';
+      document.getElementById('fraudLabel').textContent = '🔵 Análise de Fraude';
+      document.getElementById('fraudSub').textContent = '14:23:06 · Risco: baixo';
+      document.getElementById('fraudSub').className = 'text-xs text-slate-500 mt-0.5';
+
+      // Approved → done
+      const approvedIcon = document.getElementById('approvedIcon');
+      approvedIcon.innerHTML = '<span class="text-[#09090b] text-xs font-black">✓</span>';
+      approvedIcon.className = 'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 bg-cyan-400';
+      document.getElementById('approvedLine').className = 'w-0.5 flex-1 mt-1 min-h-[32px] bg-cyan-400';
+      document.getElementById('approvedLabel').textContent = '✅ Pagamento Aprovado';
+      document.getElementById('approvedLabel').className = 'text-sm font-bold text-green-400';
+      document.getElementById('approvedSub').textContent = '14:23:08 · Processamento concluído';
+      document.getElementById('approvedSub').className = 'text-xs text-slate-500 mt-0.5';
+
+      // Notification → done
+      const notifIcon = document.getElementById('notifIcon');
+      notifIcon.innerHTML = '<span class="text-[#09090b] text-xs font-black">✓</span>';
+      notifIcon.className = 'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 bg-cyan-400';
+
+      // Remove retry button if exists
+      const retry = document.getElementById('retryBtn');
+      if (retry) retry.remove();
+    }
+
+    function simulateRejected() {
+      // Fraud check → failed
+      const fraudIcon = document.getElementById('fraudIcon');
+      fraudIcon.innerHTML = '<span class="text-white text-xs font-black">✕</span>';
+      fraudIcon.className = 'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 bg-red-500';
+      document.getElementById('fraudLine').className = 'w-0.5 flex-1 mt-1 min-h-[32px] bg-red-500/30';
+      document.getElementById('fraudLabel').textContent = '🔵 Análise de Fraude';
+      document.getElementById('fraudSub').textContent = '14:23:06 · Risco: elevado';
+      document.getElementById('fraudSub').className = 'text-xs text-red-400 mt-0.5';
+
+      // Approved → rejected
+      const approvedIcon = document.getElementById('approvedIcon');
+      approvedIcon.innerHTML = '<span class="text-white text-xs font-black">✕</span>';
+      approvedIcon.className = 'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 bg-red-500';
+      document.getElementById('approvedLine').className = 'w-0.5 flex-1 mt-1 min-h-[32px] bg-red-500/30';
+      document.getElementById('approvedLabel').textContent = '❌ Pagamento Rejeitado';
+      document.getElementById('approvedLabel').className = 'text-sm font-bold text-red-400';
+      document.getElementById('approvedSub').textContent = 'Motivo: risco elevado detectado pelo fraud-detection';
+      document.getElementById('approvedSub').className = 'text-xs text-slate-400 mt-0.5';
+
+      // Add retry button if not already there
+      if (!document.getElementById('retryBtn')) {
+        const retryDiv = document.createElement('div');
+        retryDiv.id = 'retryBtn';
+        retryDiv.className = 'mt-3';
+        retryDiv.innerHTML = '<a href="checkout.html" class="btn-danger text-sm inline-flex items-center gap-2">↩ Tentar novamente</a>';
+        document.getElementById('approvedSub').after(retryDiv);
+      }
+    }
+
+    function toggleMobileMenu() {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      t.classList.remove('hidden');
+      setTimeout(() => t.classList.add('hidden'), 3000);
+    }
+  </script>
+
+</body>
+</html>

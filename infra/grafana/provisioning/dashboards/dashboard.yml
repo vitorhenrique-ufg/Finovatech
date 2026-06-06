@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: 'FinovaTech'
+    orgId: 1
+    folder: 'FinovaTech'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards

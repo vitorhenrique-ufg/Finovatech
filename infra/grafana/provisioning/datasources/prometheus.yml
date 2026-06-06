@@ -1,0 +1,10 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    uid: prometheus-finovatech
+    type: prometheus
+    access: proxy
+    url: http://finovatech-prometheus:9090
+    isDefault: true
+    editable: false

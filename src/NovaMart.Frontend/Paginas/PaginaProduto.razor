@@ -1,0 +1,62 @@
+@page "/product/{Id:guid}"
+@attribute [Authorize]
+@using NovaMart.Frontend.Modelos
+@using NovaMart.Frontend.Servicos
+@inject IServicoCatalogo CatalogoSvc
+@inject IServicoCarrinho Carrinho
+@inject IServicoToast Toast
+
+<PageTitle>@(_produto?.Nome ?? "Produto") — NovaMart</PageTitle>
+
+<NovaMart.Frontend.Compartilhados.NavBar />
+
+@if (_produto is not null)
+{
+    <div class="max-w-7xl mx-auto px-4 pb-16">
+        <nav class="py-4 text-xs text-slate-400"><a href="/" class="hover:text-slate-600">Home</a> › <a href="/catalog" class="hover:text-slate-600">Catálogo</a> › <span class="text-slate-600">@_produto.Nome</span></nav>
+        <div class="flex flex-col lg:flex-row gap-10">
+        <div class="lg:w-1/2">
+            @if (_produto.GaleriaUrls is { Count: > 0 })
+            {
+                <CarouselImagens NomeProduto="@_produto.Nome" Imagens="@_produto.GaleriaUrls" />
+            }
+            else if (!string.IsNullOrEmpty(_produto.ImagemUrl))
+            {
+                <div class="w-full aspect-square bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl border border-slate-200 overflow-hidden">
+                    <img src="@_produto.ImagemUrl" alt="@_produto.Nome"
+                         class="w-full h-full object-cover" />
+                </div>
+            }
+            else
+            {
+                <div class="w-full aspect-square bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl border border-slate-200 flex items-center justify-center">
+                    <div class="w-40 h-24 border border-cyan-200 bg-cyan-50 rounded-lg"></div>
+                </div>
+            }
+        </div>
+            <div class="lg:w-1/2">
+                <span class="inline-block bg-cyan-50 text-cyan-600 border border-cyan-200 text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-full">@_produto.Categoria</span>
+                <h1 class="text-2xl sm:text-3xl font-black text-slate-900 mt-3 mb-4 tracking-tight">@_produto.Nome</h1>
+                <div class="flex items-baseline gap-3 mb-6"><span class="text-4xl font-black text-slate-900">R$ @_produto.Preco.ToString("N2")</span>@if (_produto.PrecoOriginal.HasValue) { <span class="text-slate-400 line-through text-lg">R$ @_produto.PrecoOriginal.Value.ToString("N2")</span> }</div>
+                <div class="flex items-center gap-2 mb-6"><span class="w-2 h-2 rounded-full @(_produto.Estoque > 0 ? "bg-green-400" : "bg-red-400")"></span><span class="text-sm @(_produto.Estoque > 0 ? "text-green-400" : "text-red-400")">@(_produto.Estoque > 0 ? $"Em estoque · {_produto.Estoque} unidades" : "Esgotado")</span></div>
+                <button @onclick="AdicioneAoCarrinho" disabled="@(_produto.Estoque == 0)" class="w-full bg-cyan-500 text-white font-bold py-3 rounded-lg hover:bg-cyan-400 transition-colors disabled:opacity-50">
+                    <i class="fa-solid fa-cart-plus mr-2"></i> Adicionar ao carrinho
+                </button>
+                <p class="text-sm text-slate-500 mt-4">@_produto.Descricao</p>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    private ProdutoViewModel? _produto;
+    protected override async Task OnInitializedAsync() => _produto = await CatalogoSvc.ConsulteProdutoAsync(Id);
+
+    private async Task AdicioneAoCarrinho()
+    {
+        if (_produto is null) return;
+        Carrinho.AdicioneItem(_produto);
+        await Toast.MostreAsync($"{_produto.Nome} adicionado ao carrinho", "fa-solid fa-cart-shopping");
+    }
+}

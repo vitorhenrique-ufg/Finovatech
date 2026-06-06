@@ -1,0 +1,26 @@
+{
+  "stryker-config": {
+    "project": "Finovatech.slnx",
+    "target-framework": "net10.0",
+    "reporters": ["html", "progress"],
+    "thresholds": {
+      "high": 80,
+      "low": 60,
+      "break": 0
+    },
+    "mutation-level": "Standard",
+    "test-projects": [
+      "src/Finovatech.Contratos.Testes/Finovatech.Contratos.Testes.csproj",
+      "src/Finovatech.GatewayPagamento.Testes/Finovatech.GatewayPagamento.Testes.csproj",
+      "src/Finovatech.ProcessadorPagamento.Testes/Finovatech.ProcessadorPagamento.Testes.csproj",
+      "src/Finovatech.DeteccaoFraude.Testes/Finovatech.DeteccaoFraude.Testes.csproj",
+      "src/Finovatech.ServicoNotificacao.Testes/Finovatech.ServicoNotificacao.Testes.csproj",
+      "src/Finovatech.ServicoCatalogo.Testes/Finovatech.ServicoCatalogo.Testes.csproj",
+      "src/Finovatech.GatewayApi.Testes/Finovatech.GatewayApi.Testes.csproj",
+      "src/NovaMart.Frontend.Testes/NovaMart.Frontend.Testes.csproj"
+    ],
+    "ignore-methods": ["LogInformation", "LogWarning", "LogError", "LogDebug"],
+    "excluded-mutations": ["StringLiteral"],
+    "output-path": "mutation-report"
+  }
+}
