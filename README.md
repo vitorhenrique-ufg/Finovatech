@@ -34,8 +34,6 @@ Todos os microsserviços se comunicam **exclusivamente via eventos RabbitMQ** �
 
 Loja de hardware com visual "dark tech" construída em Blazor Server que usa o FinovaTech como meio de pagamento. Exibe o status do pagamento em tempo real via SignalR e envia Web Push Notifications (VAPID) mesmo com o browser fechado.
 
-> Este projeto foi desenvolvido como tech challenge para demonstrar padrões enterprise de microsserviços em .NET 10: event-driven architecture, resiliência, observabilidade e UX em tempo real.
-
 ---
 
 ## ✨ Funcionalidades
