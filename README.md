@@ -189,47 +189,6 @@ docker compose up -d
 ```bash
 docker compose down # qualquer plataforma
 ```
-
----
-
-## ⚙️ Configuração
-
-### Detecção de Fraude por IA (opcional)
-
-Sem configuração, o sistema usa apenas regras de negócio determinísticas. Para ativar a análise por IA, defina as variáveis de ambiente antes de subir os containers:
-
-```bash
-# Anthropic Claude (recomendado para produção)
-PROVEDOR_IA=Anthropic
-MODELO_IA=claude-opus-4-8
-APIKEY_IA=sk-ant-...
-
-# OpenRouter (acesso a dezenas de modelos com uma única API key)
-PROVEDOR_IA=OpenRouter
-MODELO_IA=anthropic/claude-opus-4-5
-APIKEY_IA=sk-or-...
-BASEURL_IA=https://openrouter.ai/api/v1
-
-# OpenAI
-PROVEDOR_IA=OpenAI
-MODELO_IA=gpt-4o
-APIKEY_IA=sk-...
-
-# Ollama (local, gratuito, sem internet — ideal para desenvolvimento)
-PROVEDOR_IA=Ollama
-MODELO_IA=llama3.2
-BASEURL_IA=http://host.docker.internal:11434/v1
-```
-
-```yaml
-# docker-compose.yml (trecho)
-serviço-notificacao:
-  environment:
-    VAPID__PublicKey: "SUA_CHAVE_PUBLICA"
-    VAPID__PrivateKey: "SUA_CHAVE_PRIVADA"
-    VAPID__Subject: "mailto:contato@seudominio.com"
-```
-
 ---
 
 ## 📊 Observabilidade
@@ -280,7 +239,6 @@ Acesse **http://localhost:3000** (admin / finovatech123) para visualizar os 3 da
 Para ativar as notificações por email, configure as variáveis de ambiente antes de subir os containers:
 
 ```bash
-# Gmail (recomendado para testes — use uma App Password, não a senha da conta)
 export SMTP_HOST="smtp.gmail.com:587"
 export SMTP_USER="seu@gmail.com"
 export SMTP_PASSWORD="sua-app-password"
@@ -289,9 +247,6 @@ export ALERT_EMAIL_TO="destino@email.com"
 
 docker compose up -d
 ```
-
-> **Gmail App Password:** Acesse [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords), gere uma senha para "Mail" e use-a como `SMTP_PASSWORD`. A autenticação de dois fatores precisa estar ativa.
-
 Para outros provedores:
 
 ```bash
